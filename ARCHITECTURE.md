@@ -81,17 +81,87 @@ sequenceDiagram
 
 ```text
 m3u8-detector/
-├── manifest.json          # Chrome Extension Manifest V3 configuration
-├── background.js          # Service worker for request interception & segment resolution
+├── manifest.json          # Chrome Extension Manifest V3 + Firefox gecko settings
+├── background.js          # Service worker: request interception, segment resolution, pin storage
 ├── content.js             # Content script bridge between MAIN & ISOLATED worlds
-├── interceptor.js         # Page-level XHR/fetch hook
-├── panel.js               # Shadow DOM sidebar panel UI
-├── options.html           # Options & guide user interface
-├── options.js             # Options logic & Colab notebook bundler
-├── hls-colab.ipynb        # Jupyter/Colab notebook for downloading & muxing
-├── icons/                 # Extension toolbar & store icons
+├── interceptor.js         # Page-level XHR/fetch hook (injected into MAIN world)
+├── panel.js               # Shadow DOM sidebar panel UI (theme-aware)
+├── options.html           # Options page: pinned streams, notebook download, help
+├── options.js             # Options logic: storage reader, notebook/script downloader
+├── hls-colab.ipynb        # Google Colab notebook: HLS + direct MP4 → Google Drive
+├── hls-local.sh           # Local bash script: HLS + direct MP4 → ~/Downloads
+├── icons/                 # Extension toolbar & store icons (16/32/48/128/512 px)
 ├── README.md              # Project overview & usage guide
+├── CHANGELOG.md           # Version history and release notes
 ├── CONTRIBUTING.md        # Contribution guidelines
 ├── ARCHITECTURE.md        # Technical architecture documentation (this file)
 └── LICENSE                # MIT License
 ```
+
+---
+
+## 🚀 Building & Releasing
+
+### Prerequisites
+
+```bash
+# macOS / Linux
+brew install zip   # or: apt install zip
+# ffmpeg required on end-user machine for hls-local.sh (not for packaging)
+```
+
+### Build Release ZIPs
+
+Both browsers use the same ZIP (Chrome ignores `browser_specific_settings`).
+
+```bash
+cd m3u8-detector
+
+# Chrome
+zip -r ../releases/m3u8-detector-v1.x-chrome.zip \
+  manifest.json background.js content.js interceptor.js \
+  panel.js options.html options.js \
+  hls-colab.ipynb hls-local.sh \
+  README.md ARCHITECTURE.md CONTRIBUTING.md CHANGELOG.md LICENSE \
+  icons/
+
+# Firefox (identical content)
+cp ../releases/m3u8-detector-v1.x-chrome.zip \
+   ../releases/m3u8-detector-v1.x-firefox.zip
+```
+
+> Replace `1.x` with the version in `manifest.json`. Do **not** include `.git/`, `popup.html`, or `popup.js`.
+
+### Upload to Chrome Web Store
+
+1. Go to [chrome.google.com/webstore/devconsole](https://chrome.google.com/webstore/devconsole)
+2. Select the extension → **Package** tab → **Upload new package**
+3. Upload `m3u8-detector-v1.x-chrome.zip`
+4. Fill in store listing if prompted → **Submit for review**
+
+### Upload to Firefox Add-ons (AMO)
+
+1. Go to [addons.mozilla.org/developers](https://addons.mozilla.org/en-US/developers/)
+2. **Submit a New Add-on** (or update existing) → **On this site**
+3. Upload `m3u8-detector-v1.x-firefox.zip`
+4. AMO may ask for the source code ZIP — upload the same file
+5. Complete listing metadata → **Submit**
+
+> Firefox requires the extension ID in `browser_specific_settings.gecko.id` to match the one registered on AMO. Current ID: `m3u8-detector@albertolicea00`
+
+### Load Unpacked (Development)
+
+**Chrome:**
+1. `chrome://extensions` → Enable **Developer mode**
+2. **Load unpacked** → select the `m3u8-detector/` folder
+
+**Firefox:**
+1. `about:debugging` → **This Firefox** → **Load Temporary Add-on**
+2. Select `manifest.json` inside `m3u8-detector/`
+
+### Version Bump Checklist
+
+- [ ] Update `"version"` in `manifest.json`
+- [ ] Add entry to `CHANGELOG.md`
+- [ ] Create ZIPs with the new version number
+- [ ] Tag git commit: `git tag v1.x && git push origin v1.x`
