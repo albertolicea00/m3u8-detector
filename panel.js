@@ -265,7 +265,7 @@
     const pinned_  = streams.filter(s =>  s.pinned).sort((a, b) => b.ts - a.ts);
     const sorted   = [...unpinned, ...pinned_];
 
-    sorted.forEach(({ streamUrl, pageUrl, pageTitle, customName = '', cookies = '', segments = null, segmentCount = null, ts, pinned = false }) => {
+    sorted.forEach(({ streamUrl, pageUrl, pageTitle, customName = '', cookies = '', segments = null, segmentCount = null, ts, pinned = false, streamType = 'hls' }) => {
       const displayName = customName || pageTitle || '';
 
       // Insert divider before first pinned item
@@ -308,7 +308,10 @@
 
       const segLine = document.createElement('div');
       segLine.style.cssText = 'font-size:10px;margin-top:3px;';
-      if (segments === null) {
+      if (streamType === 'direct') {
+        segLine.style.color = '#a8d8ea';
+        segLine.textContent = 'Direct video';
+      } else if (segments === null) {
         segLine.style.color = '#888';
         segLine.textContent = '⏳ Resolving segments…';
       } else {
@@ -377,8 +380,8 @@
   });
 
   function buildJSON() {
-    return JSON.stringify(streams.map(({ streamUrl, pageUrl, pageTitle, customName = '', cookies = '', segments = null, segmentCount = null, ts }) => ({
-      name: customName || pageTitle, pageTitle, customName, pageUrl, streamUrl, cookies, segmentCount, segments,
+    return JSON.stringify(streams.map(({ streamUrl, pageUrl, pageTitle, customName = '', cookies = '', segments = null, segmentCount = null, ts, streamType = 'hls' }) => ({
+      name: customName || pageTitle, pageTitle, customName, pageUrl, streamUrl, cookies, segmentCount, segments, streamType,
       detectedAt: new Date(ts).toISOString(), detectedAtMs: ts,
     })), null, 2);
   }

@@ -1,5 +1,7 @@
 const M3U8_RE = /\.(m3u8|m3u)(\?|$)/i;
 const CONTENT_TYPE_RE = /mpegurl|x-mpegURL/i;
+const MP4_RE = /\.(mp4|mkv|webm)(\?|#|$)/i;
+const VIDEO_CT_RE = /^video\/(mp4|webm|x-matroska|ogg)/i;
 
 // detected[tabId] = [{streamUrl, pageUrl, pageTitle, cookies, segments, segmentCount, ts}]
 let detected = {};
@@ -71,17 +73,16 @@ async function resolveSegments(url) {
   }
 }
 
-function addStream(tabId, streamUrl, pageUrl, pageTitle) {
+function addStream(tabId, streamUrl, pageUrl, pageTitle, streamType = 'hls') {
   if (!detected[tabId]) detected[tabId] = [];
   if (detected[tabId].some(e => e.streamUrl === streamUrl)) return;
 
   const entry = {
     streamUrl, pageUrl: pageUrl || '', pageTitle: pageTitle || '',
-    cookies: '', segments: null, segmentCount: null, ts: Date.now(),
+    cookies: '', segments: null, segmentCount: null, ts: Date.now(), streamType,
   };
   detected[tabId].push(entry);
 
-  // Parallel: cookies + playlist resolution
   const cookieP = pageUrl
     ? new Promise(r => chrome.cookies.getAll({ url: pageUrl }, c => {
         entry.cookies = (c || []).map(x => `${x.name}=${x.value}`).join('; ');
@@ -89,13 +90,15 @@ function addStream(tabId, streamUrl, pageUrl, pageTitle) {
       }))
     : Promise.resolve();
 
-  const segP = resolveSegments(streamUrl).then(segs => {
-    if (segs) { entry.segments = segs; entry.segmentCount = segs.length; }
-  });
+  if (streamType === 'hls') {
+    const segP = resolveSegments(streamUrl).then(segs => {
+      if (segs) { entry.segments = segs; entry.segmentCount = segs.length; }
+    });
+    Promise.all([cookieP, segP]).then(() => pushUpdate(tabId));
+  } else {
+    cookieP.then(() => pushUpdate(tabId));
+  }
 
-  Promise.all([cookieP, segP]).then(() => pushUpdate(tabId));
-
-  // Show in panel immediately (segments still resolving)
   pushUpdate(tabId);
 }
 
@@ -105,12 +108,12 @@ function updateBadge(tabId) {
   chrome.action.setBadgeBackgroundColor({ color: '#e53935', tabId });
 }
 
-function addStreamFromTab(tabId, streamUrl) {
+function addStreamFromTab(tabId, streamUrl, streamType = 'hls') {
   chrome.tabs.get(tabId, (tab) => {
     if (chrome.runtime.lastError) {
-      addStream(tabId, streamUrl, '', '');
+      addStream(tabId, streamUrl, '', '', streamType);
     } else {
-      addStream(tabId, streamUrl, tab.url || '', tab.title || '');
+      addStream(tabId, streamUrl, tab.url || '', tab.title || '', streamType);
     }
   });
 }
@@ -118,7 +121,9 @@ function addStreamFromTab(tabId, streamUrl) {
 chrome.webRequest.onBeforeRequest.addListener(
   (details) => {
     if (details.tabId < 0) return;
-    if (M3U8_RE.test(details.url)) addStreamFromTab(details.tabId, details.url);
+    if (M3U8_RE.test(details.url)) addStreamFromTab(details.tabId, details.url, 'hls');
+    else if (details.type === 'media' && MP4_RE.test(details.url))
+      addStreamFromTab(details.tabId, details.url, 'direct');
   },
   { urls: ['<all_urls>'] }
 );
@@ -128,7 +133,10 @@ chrome.webRequest.onHeadersReceived.addListener(
     if (details.tabId < 0) return;
     const ct = (details.responseHeaders || [])
       .find(h => h.name.toLowerCase() === 'content-type');
-    if (ct && CONTENT_TYPE_RE.test(ct.value)) addStreamFromTab(details.tabId, details.url);
+    if (!ct) return;
+    if (CONTENT_TYPE_RE.test(ct.value)) addStreamFromTab(details.tabId, details.url, 'hls');
+    else if (details.type === 'media' && VIDEO_CT_RE.test(ct.value))
+      addStreamFromTab(details.tabId, details.url, 'direct');
   },
   { urls: ['<all_urls>'] },
   ['responseHeaders']
