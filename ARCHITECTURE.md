@@ -124,17 +124,17 @@ Both browsers use the same ZIP (Chrome ignores `browser_specific_settings`).
 cd m3u8-detector
 
 # Chrome
-zip -r ../releases/m3u8-detector-v1.x-chrome.zip \
-  manifest.json \
-  src/ icons/ \
+zip -r dist/m3u8-detector-v1.x-chrome.zip \
+  manifest.json icon.svg \
+  src/ \
   README.md ARCHITECTURE.md CONTRIBUTING.md CHANGELOG.md LICENSE
 
 # Firefox (identical content)
-cp ../releases/m3u8-detector-v1.x-chrome.zip \
-   ../releases/m3u8-detector-v1.x-firefox.zip
+cp dist/m3u8-detector-v1.x-chrome.zip \
+   dist/m3u8-detector-v1.x-firefox.zip
 ```
 
-> Replace `1.x` with the version in `manifest.json`. Do **not** include `.git/`, `popup.html`, or `popup.js`.
+> Replace `1.x` with the version in `manifest.json`. Do **not** include `.git/` or `dist/` itself.
 
 ### Upload to Chrome Web Store
 
