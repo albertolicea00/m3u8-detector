@@ -37,7 +37,7 @@ function render(streams) {
   }
   empty.style.display = 'none';
 
-  [...streams].reverse().forEach(({ streamUrl = '', pageUrl = '', pageTitle = '', ts }) => {
+  [...streams].reverse().forEach(({ streamUrl = '', pageUrl = '', pageTitle = '', cookies = '', ts }) => {
     const item = document.createElement('div');
     item.className = 'item';
 
@@ -72,6 +72,7 @@ function render(streams) {
 
     row.appendChild(copyBtn('Copy stream URL', streamUrl));
     if (pageUrl) row.appendChild(copyBtn('Copy page URL', pageUrl));
+    if (cookies)  row.appendChild(copyBtn('Copy cookies', cookies));
 
     item.appendChild(row);
     list.appendChild(item);
@@ -79,10 +80,11 @@ function render(streams) {
 }
 
 function exportJSON(streams, tabTitle) {
-  const data = streams.map(({ streamUrl, pageUrl, pageTitle, ts }) => ({
+  const data = streams.map(({ streamUrl, pageUrl, pageTitle, cookies = '', ts }) => ({
     pageTitle,
     pageUrl,
     streamUrl,
+    cookies,
     detectedAt: fmtISO(ts),
     detectedAtMs: ts,
   }));

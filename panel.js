@@ -224,7 +224,7 @@
     $('m-count').textContent = `${streams.length} stream${streams.length !== 1 ? 's' : ''}`;
     $('m-empty').style.display = streams.length ? 'none' : 'block';
 
-    [...streams].reverse().forEach(({ streamUrl, pageUrl, pageTitle, ts }) => {
+    [...streams].reverse().forEach(({ streamUrl, pageUrl, pageTitle, cookies = '', ts }) => {
       const item = document.createElement('div');
       item.className = 'm-item';
 
@@ -252,6 +252,7 @@
       row.appendChild(time);
       row.appendChild(copyBtn('Copy stream', streamUrl));
       if (pageUrl) row.appendChild(copyBtn('Copy page', pageUrl));
+      if (cookies)  row.appendChild(copyBtn('Copy cookies', cookies));
 
       item.appendChild(row);
       body.appendChild(item);
@@ -276,8 +277,8 @@
   });
 
   $('m-export').addEventListener('click', () => {
-    const data = streams.map(({ streamUrl, pageUrl, pageTitle, ts }) => ({
-      pageTitle, pageUrl, streamUrl,
+    const data = streams.map(({ streamUrl, pageUrl, pageTitle, cookies = '', ts }) => ({
+      pageTitle, pageUrl, streamUrl, cookies,
       detectedAt: new Date(ts).toISOString(),
       detectedAtMs: ts,
     }));

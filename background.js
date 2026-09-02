@@ -1,18 +1,32 @@
 const M3U8_RE = /\.(m3u8|m3u)(\?|$)/i;
 const CONTENT_TYPE_RE = /mpegurl|x-mpegURL/i;
 
-// detected[tabId] = [{streamUrl, pageUrl, pageTitle, ts}]
+// detected[tabId] = [{streamUrl, pageUrl, pageTitle, cookies, ts}]
 let detected = {};
+
+function pushUpdate(tabId) {
+  updateBadge(tabId);
+  chrome.tabs.sendMessage(tabId, { type: 'PANEL_UPDATE', streams: detected[tabId] }, () => {
+    chrome.runtime.lastError;
+  });
+}
 
 function addStream(tabId, streamUrl, pageUrl, pageTitle) {
   if (!detected[tabId]) detected[tabId] = [];
   if (detected[tabId].some(e => e.streamUrl === streamUrl)) return;
-  detected[tabId].push({ streamUrl, pageUrl: pageUrl || '', pageTitle: pageTitle || '', ts: Date.now() });
-  updateBadge(tabId);
-  // Push live update to panel
-  chrome.tabs.sendMessage(tabId, { type: 'PANEL_UPDATE', streams: detected[tabId] }, () => {
-    chrome.runtime.lastError; // suppress "no receiver" errors
-  });
+
+  const entry = { streamUrl, pageUrl: pageUrl || '', pageTitle: pageTitle || '', cookies: '', ts: Date.now() };
+  detected[tabId].push(entry);
+
+  // Grab all cookies for the page URL (includes HttpOnly)
+  if (pageUrl) {
+    chrome.cookies.getAll({ url: pageUrl }, (cookies) => {
+      entry.cookies = (cookies || []).map(c => `${c.name}=${c.value}`).join('; ');
+      pushUpdate(tabId);
+    });
+  } else {
+    pushUpdate(tabId);
+  }
 }
 
 function updateBadge(tabId) {
@@ -31,7 +45,6 @@ function addStreamFromTab(tabId, streamUrl) {
   });
 }
 
-// Detect by URL pattern
 chrome.webRequest.onBeforeRequest.addListener(
   (details) => {
     if (details.tabId < 0) return;
@@ -40,7 +53,6 @@ chrome.webRequest.onBeforeRequest.addListener(
   { urls: ['<all_urls>'] }
 );
 
-// Detect by Content-Type header
 chrome.webRequest.onHeadersReceived.addListener(
   (details) => {
     if (details.tabId < 0) return;
@@ -52,7 +64,6 @@ chrome.webRequest.onHeadersReceived.addListener(
   ['responseHeaders']
 );
 
-// Clear on tab navigation
 chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
   if (changeInfo.status === 'loading' && changeInfo.url) {
     detected[tabId] = [];
@@ -65,7 +76,6 @@ chrome.tabs.onRemoved.addListener((tabId) => {
 });
 
 chrome.runtime.onMessage.addListener((msg, sender, reply) => {
-  // Popup
   if (msg.type === 'GET_STREAMS') {
     reply({ streams: detected[msg.tabId] || [] });
   }
@@ -74,8 +84,6 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
     updateBadge(msg.tabId);
     reply({ ok: true });
   }
-
-  // Panel (uses sender.tab.id — no need to pass tabId)
   if (msg.type === 'GET_STREAMS_PANEL') {
     reply({ streams: detected[sender.tab.id] || [] });
   }
@@ -86,11 +94,8 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
     chrome.tabs.sendMessage(tabId, { type: 'PANEL_UPDATE', streams: [] }, () => { chrome.runtime.lastError; });
     reply({ ok: true });
   }
-
-  // Body-detected (from interceptor bridge)
   if (msg.type === 'BODY_DETECTED') {
     addStream(sender.tab.id, msg.streamUrl, msg.pageUrl || '', msg.pageTitle || '');
   }
-
   return true;
 });
