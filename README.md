@@ -113,3 +113,11 @@ Requires: `curl`, `ffmpeg`, `python3`
 - [ARCHITECTURE.md](ARCHITECTURE.md) — system design, component diagram, build & release guide
 - [CONTRIBUTING.md](CONTRIBUTING.md) — contribution guidelines
 - [CHANGELOG.md](CHANGELOG.md) — version history
+
+## Agent skill
+
+HLS download knowledge (pipeline, obfuscation patterns, PNG strip, signed URLs, full-season batch) lives in the skill [dl-mtv](https://github.com/albertolicea00/agentskills/tree/main/skills/dl-mtv). Install it so your AI agent knows how to download what this extension detects:
+
+```bash
+npx skills add albertolicea00/agentskills --skill dl-mtv -g
+```
