@@ -28,7 +28,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["interceptor.js"],
+      "resources": ["interceptor.js", "hls-colab.ipynb"],
       "matches": ["<all_urls>"]
     }
   ]
