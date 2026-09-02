@@ -82,18 +82,20 @@ sequenceDiagram
 ```text
 m3u8-detector/
 ├── manifest.json          # Chrome Extension Manifest V3 + Firefox gecko settings
-├── background.js          # Service worker: request interception, segment resolution, pin storage
-├── content.js             # Content script bridge between MAIN & ISOLATED worlds
-├── interceptor.js         # Page-level XHR/fetch hook (injected into MAIN world)
-├── panel.js               # Shadow DOM sidebar panel UI (theme-aware)
-├── options.html           # Options page: pinned streams, notebook/script download, help
-├── options.js             # Options logic: storage reader, notebook/script downloader
-├── hls-colab.ipynb        # Google Colab notebook: HLS + direct MP4 → Google Drive
 ├── icons/                 # Extension toolbar & store icons (16/32/48/128/512 px)
 ├── src/
+│   ├── background.js      # Service worker: request interception, segment resolution, pin storage
+│   ├── content.js         # Content script bridge between MAIN & ISOLATED worlds
+│   ├── interceptor.js     # Page-level XHR/fetch hook (injected into MAIN world)
+│   ├── panel.js           # Shadow DOM sidebar panel UI (theme-aware)
+│   ├── options.html       # Options page: pinned streams, notebook/script download, help
+│   ├── options.js         # Options logic: storage reader, notebook/script downloader
+│   ├── notebooks/
+│   │   └── hls-colab.ipynb  # Google Colab notebook: HLS + direct MP4 → Google Drive
 │   └── scripts/
-│       └── hls-local.sh  # Local bash script: HLS + direct MP4 → ~/Downloads
+│       └── hls-local.sh     # Local bash script: HLS + direct MP4 → ~/Downloads
 ├── tests/                 # (reserved for automated tests)
+├── dist/                  # (reserved for release ZIPs)
 ├── README.md              # Project overview & usage guide
 ├── CHANGELOG.md           # Version history and release notes
 ├── CONTRIBUTING.md        # Contribution guidelines
@@ -122,11 +124,9 @@ cd m3u8-detector
 
 # Chrome
 zip -r ../releases/m3u8-detector-v1.x-chrome.zip \
-  manifest.json background.js content.js interceptor.js \
-  panel.js options.html options.js \
-  hls-colab.ipynb \
-  README.md ARCHITECTURE.md CONTRIBUTING.md CHANGELOG.md LICENSE \
-  icons/ src/
+  manifest.json \
+  src/ icons/ \
+  README.md ARCHITECTURE.md CONTRIBUTING.md CHANGELOG.md LICENSE
 
 # Firefox (identical content)
 cp ../releases/m3u8-detector-v1.x-chrome.zip \
