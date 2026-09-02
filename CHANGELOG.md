@@ -4,6 +4,15 @@ All notable changes to this project are documented here.
 
 ---
 
+## [1.10] — 2026-09-02
+
+### Changed
+- Icons moved from `icons/` to `src/icons/`. Source SVG stays at root as `icon.svg`.
+- Release ZIPs now generated into `dist/` instead of `../releases/`.
+- README rewritten: updated file tree, workflow docs, added links to ARCHITECTURE.md, CONTRIBUTING.md, CHANGELOG.md.
+
+---
+
 ## [1.9] — 2026-09-02
 
 ### Added
