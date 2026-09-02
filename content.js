@@ -6,5 +6,10 @@ s.onload = () => s.remove();
 
 // Bridge: relay detected streams from page world → background
 window.addEventListener('__m3u8_detected__', (e) => {
-  chrome.runtime.sendMessage({ type: 'BODY_DETECTED', url: e.detail.url });
+  chrome.runtime.sendMessage({
+    type: 'BODY_DETECTED',
+    streamUrl: e.detail.url,
+    pageUrl: location.href,
+    pageTitle: document.title,
+  });
 });

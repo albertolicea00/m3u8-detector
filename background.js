@@ -1,14 +1,13 @@
 const M3U8_RE = /\.(m3u8|m3u)(\?|$)/i;
 const CONTENT_TYPE_RE = /mpegurl|x-mpegURL/i;
 
-// detected[tabId] = [{url, ts}]
+// detected[tabId] = [{streamUrl, pageUrl, pageTitle, ts}]
 let detected = {};
 
-function addStream(tabId, url) {
+function addStream(tabId, streamUrl, pageUrl, pageTitle) {
   if (!detected[tabId]) detected[tabId] = [];
-  // dedupe
-  if (detected[tabId].some(e => e.url === url)) return;
-  detected[tabId].push({ url, ts: Date.now() });
+  if (detected[tabId].some(e => e.streamUrl === streamUrl)) return;
+  detected[tabId].push({ streamUrl, pageUrl: pageUrl || '', pageTitle: pageTitle || '', ts: Date.now() });
   updateBadge(tabId);
 }
 
@@ -18,13 +17,21 @@ function updateBadge(tabId) {
   chrome.action.setBadgeBackgroundColor({ color: '#e53935', tabId });
 }
 
+function addStreamFromTab(tabId, streamUrl) {
+  chrome.tabs.get(tabId, (tab) => {
+    if (chrome.runtime.lastError) {
+      addStream(tabId, streamUrl, '', '');
+    } else {
+      addStream(tabId, streamUrl, tab.url || '', tab.title || '');
+    }
+  });
+}
+
 // Detect by URL pattern
 chrome.webRequest.onBeforeRequest.addListener(
   (details) => {
     if (details.tabId < 0) return;
-    if (M3U8_RE.test(details.url)) {
-      addStream(details.tabId, details.url);
-    }
+    if (M3U8_RE.test(details.url)) addStreamFromTab(details.tabId, details.url);
   },
   { urls: ['<all_urls>'] }
 );
@@ -35,9 +42,7 @@ chrome.webRequest.onHeadersReceived.addListener(
     if (details.tabId < 0) return;
     const ct = (details.responseHeaders || [])
       .find(h => h.name.toLowerCase() === 'content-type');
-    if (ct && CONTENT_TYPE_RE.test(ct.value)) {
-      addStream(details.tabId, details.url);
-    }
+    if (ct && CONTENT_TYPE_RE.test(ct.value)) addStreamFromTab(details.tabId, details.url);
   },
   { urls: ['<all_urls>'] },
   ['responseHeaders']
@@ -64,6 +69,9 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
     detected[msg.tabId] = [];
     updateBadge(msg.tabId);
     reply({ ok: true });
+  }
+  if (msg.type === 'BODY_DETECTED') {
+    addStream(sender.tab.id, msg.streamUrl, msg.pageUrl || '', msg.pageTitle || '');
   }
   return true;
 });
