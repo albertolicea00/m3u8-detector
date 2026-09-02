@@ -165,7 +165,8 @@
       <div class="m-empty" id="m-empty">No streams detected on this page.</div>
     </div>
     <div class="m-footer">
-      <button class="m-btn export" id="m-export">Export JSON</button>
+      <button class="m-btn export" id="m-copy-json">Copy JSON</button>
+      <button class="m-btn export" id="m-export">Save JSON</button>
       <button class="m-btn clr"    id="m-clear">Clear</button>
     </div>
   `;
@@ -224,7 +225,7 @@
     $('m-count').textContent = `${streams.length} stream${streams.length !== 1 ? 's' : ''}`;
     $('m-empty').style.display = streams.length ? 'none' : 'block';
 
-    [...streams].reverse().forEach(({ streamUrl, pageUrl, pageTitle, cookies = '', ts }) => {
+    [...streams].reverse().forEach(({ streamUrl, pageUrl, pageTitle, cookies = '', segments = null, segmentCount = null, ts }) => {
       const item = document.createElement('div');
       item.className = 'm-item';
 
@@ -243,6 +244,17 @@
       su.className = 'm-stream-url'; su.textContent = streamUrl;
       item.appendChild(su);
 
+      const segLine = document.createElement('div');
+      segLine.style.cssText = 'font-size:10px;margin-top:3px;';
+      if (segments === null) {
+        segLine.style.color = '#888';
+        segLine.textContent = '⏳ Resolving segments…';
+      } else {
+        segLine.style.color = '#4caf50';
+        segLine.textContent = `✓ ${segmentCount} segments ready`;
+      }
+      item.appendChild(segLine);
+
       const row = document.createElement('div');
       row.className = 'm-row';
 
@@ -253,6 +265,20 @@
       row.appendChild(copyBtn('Copy stream', streamUrl));
       if (pageUrl) row.appendChild(copyBtn('Copy page', pageUrl));
       if (cookies)  row.appendChild(copyBtn('Copy cookies', cookies));
+      if (segments) {
+        const safe = (pageTitle || 'segments').replace(/[^a-z0-9]/gi, '_').slice(0, 30);
+        const dlBtn = document.createElement('button');
+        dlBtn.className = 'm-copy';
+        dlBtn.textContent = `⬇ ${segmentCount} segs`;
+        dlBtn.style.cssText = 'border-color:#4caf50;color:#4caf50;';
+        dlBtn.addEventListener('click', () => {
+          const blob = new Blob([segments.join('\n')], { type: 'text/plain' });
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob); a.download = `${safe}_segments.txt`; a.click();
+          URL.revokeObjectURL(a.href);
+        });
+        row.appendChild(dlBtn);
+      }
 
       item.appendChild(row);
       body.appendChild(item);
@@ -276,13 +302,23 @@
     });
   });
 
+  function buildJSON() {
+    return JSON.stringify(streams.map(({ streamUrl, pageUrl, pageTitle, cookies = '', segments = null, segmentCount = null, ts }) => ({
+      pageTitle, pageUrl, streamUrl, cookies, segmentCount, segments,
+      detectedAt: new Date(ts).toISOString(), detectedAtMs: ts,
+    })), null, 2);
+  }
+
+  $('m-copy-json').addEventListener('click', () => {
+    navigator.clipboard.writeText(buildJSON()).then(() => {
+      const btn = $('m-copy-json');
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.textContent = 'Copy JSON'; }, 1500);
+    });
+  });
+
   $('m-export').addEventListener('click', () => {
-    const data = streams.map(({ streamUrl, pageUrl, pageTitle, cookies = '', ts }) => ({
-      pageTitle, pageUrl, streamUrl, cookies,
-      detectedAt: new Date(ts).toISOString(),
-      detectedAtMs: ts,
-    }));
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const blob = new Blob([buildJSON()], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = `m3u8_${location.hostname}_${Date.now()}.json`;
@@ -295,12 +331,12 @@
     render();
   });
 
-  // Live push from background
+  // Live push + toggle from background
   chrome.runtime.onMessage.addListener((msg) => {
+    if (msg.type === 'PANEL_TOGGLE') { isOpen ? close() : open(); return; }
     if (msg.type !== 'PANEL_UPDATE') return;
     streams = msg.streams;
     render();
-    // Flash tab if panel is closed
     if (!isOpen) {
       tab.style.background = '#ff6b6b';
       setTimeout(() => { tab.style.background = ''; }, 600);

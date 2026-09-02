@@ -1,7 +1,7 @@
 const M3U8_RE = /\.(m3u8|m3u)(\?|$)/i;
 const CONTENT_TYPE_RE = /mpegurl|x-mpegURL/i;
 
-// detected[tabId] = [{streamUrl, pageUrl, pageTitle, cookies, ts}]
+// detected[tabId] = [{streamUrl, pageUrl, pageTitle, cookies, segments, segmentCount, ts}]
 let detected = {};
 
 function pushUpdate(tabId) {
@@ -11,22 +11,77 @@ function pushUpdate(tabId) {
   });
 }
 
+// Fetch playlist from service worker (user's IP — bypasses IP-locked 403)
+async function resolveSegments(url) {
+  try {
+    const hdrs = {
+      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/125.0.0.0 Safari/537.36',
+      'Referer': new URL(url).origin,
+      'Accept': '*/*',
+    };
+    const res = await fetch(url, { headers: hdrs });
+    if (!res.ok) return null;
+    const text = await res.text();
+
+    // Master playlist → pick highest-bandwidth variant
+    if (text.includes('#EXT-X-STREAM-INF')) {
+      const lines = text.split('\n');
+      let bestUrl = null, bestBw = -1;
+      for (let i = 0; i < lines.length; i++) {
+        if (lines[i].startsWith('#EXT-X-STREAM-INF')) {
+          const m = lines[i].match(/BANDWIDTH=(\d+)/);
+          const bw = m ? parseInt(m[1]) : 0;
+          if (bw >= bestBw) {
+            bestBw = bw;
+            let uri = (lines[i + 1] || '').trim();
+            if (uri && !uri.startsWith('http')) {
+              uri = url.substring(0, url.lastIndexOf('/') + 1) + uri;
+            }
+            bestUrl = uri;
+          }
+        }
+      }
+      return bestUrl ? resolveSegments(bestUrl) : null;
+    }
+
+    // Media playlist → extract segment URLs
+    const base = url.substring(0, url.lastIndexOf('/') + 1);
+    const segs = text.split('\n')
+      .map(l => l.trim())
+      .filter(l => l && !l.startsWith('#'))
+      .map(l => l.startsWith('http') ? l : base + l);
+    return segs.length ? segs : null;
+  } catch {
+    return null;
+  }
+}
+
 function addStream(tabId, streamUrl, pageUrl, pageTitle) {
   if (!detected[tabId]) detected[tabId] = [];
   if (detected[tabId].some(e => e.streamUrl === streamUrl)) return;
 
-  const entry = { streamUrl, pageUrl: pageUrl || '', pageTitle: pageTitle || '', cookies: '', ts: Date.now() };
+  const entry = {
+    streamUrl, pageUrl: pageUrl || '', pageTitle: pageTitle || '',
+    cookies: '', segments: null, segmentCount: null, ts: Date.now(),
+  };
   detected[tabId].push(entry);
 
-  // Grab all cookies for the page URL (includes HttpOnly)
-  if (pageUrl) {
-    chrome.cookies.getAll({ url: pageUrl }, (cookies) => {
-      entry.cookies = (cookies || []).map(c => `${c.name}=${c.value}`).join('; ');
-      pushUpdate(tabId);
-    });
-  } else {
-    pushUpdate(tabId);
-  }
+  // Parallel: cookies + playlist resolution
+  const cookieP = pageUrl
+    ? new Promise(r => chrome.cookies.getAll({ url: pageUrl }, c => {
+        entry.cookies = (c || []).map(x => `${x.name}=${x.value}`).join('; ');
+        r();
+      }))
+    : Promise.resolve();
+
+  const segP = resolveSegments(streamUrl).then(segs => {
+    if (segs) { entry.segments = segs; entry.segmentCount = segs.length; }
+  });
+
+  Promise.all([cookieP, segP]).then(() => pushUpdate(tabId));
+
+  // Show in panel immediately (segments still resolving)
+  pushUpdate(tabId);
 }
 
 function updateBadge(tabId) {
@@ -64,6 +119,12 @@ chrome.webRequest.onHeadersReceived.addListener(
   ['responseHeaders']
 );
 
+// Toolbar icon click → toggle panel
+chrome.action.onClicked.addListener((tab) => {
+  if (tab.id < 0) return;
+  chrome.tabs.sendMessage(tab.id, { type: 'PANEL_TOGGLE' }, () => { chrome.runtime.lastError; });
+});
+
 chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
   if (changeInfo.status === 'loading' && changeInfo.url) {
     detected[tabId] = [];
@@ -71,27 +132,18 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
   }
 });
 
-chrome.tabs.onRemoved.addListener((tabId) => {
-  delete detected[tabId];
-});
+chrome.tabs.onRemoved.addListener((tabId) => { delete detected[tabId]; });
 
 chrome.runtime.onMessage.addListener((msg, sender, reply) => {
-  if (msg.type === 'GET_STREAMS') {
-    reply({ streams: detected[msg.tabId] || [] });
-  }
+  if (msg.type === 'GET_STREAMS')      reply({ streams: detected[msg.tabId] || [] });
+  if (msg.type === 'GET_STREAMS_PANEL') reply({ streams: detected[sender.tab.id] || [] });
   if (msg.type === 'CLEAR') {
-    detected[msg.tabId] = [];
-    updateBadge(msg.tabId);
-    reply({ ok: true });
-  }
-  if (msg.type === 'GET_STREAMS_PANEL') {
-    reply({ streams: detected[sender.tab.id] || [] });
+    detected[msg.tabId] = []; updateBadge(msg.tabId); reply({ ok: true });
   }
   if (msg.type === 'CLEAR_PANEL') {
-    const tabId = sender.tab.id;
-    detected[tabId] = [];
-    updateBadge(tabId);
-    chrome.tabs.sendMessage(tabId, { type: 'PANEL_UPDATE', streams: [] }, () => { chrome.runtime.lastError; });
+    const id = sender.tab.id;
+    detected[id] = []; updateBadge(id);
+    chrome.tabs.sendMessage(id, { type: 'PANEL_UPDATE', streams: [] }, () => { chrome.runtime.lastError; });
     reply({ ok: true });
   }
   if (msg.type === 'BODY_DETECTED') {
