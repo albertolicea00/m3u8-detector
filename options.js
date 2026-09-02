@@ -138,6 +138,25 @@ document.getElementById('btn-nb').addEventListener('click', async () => {
   }
 });
 
+// ── Local script download ──────────────────────────────────────────────────────
+document.getElementById('btn-sh').addEventListener('click', async () => {
+  const status = document.getElementById('sh-status');
+  try {
+    const res  = await fetch(chrome.runtime.getURL('src/scripts/hls-local.sh'));
+    const blob = await res.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'hls-local.sh';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+    status.textContent = 'Saved — run: chmod +x hls-local.sh';
+    setTimeout(() => { status.textContent = ''; }, 4000);
+  } catch (e) {
+    status.style.color = 'var(--accent)';
+    status.textContent = 'Error: ' + e.message;
+  }
+});
+
 // ── README ────────────────────────────────────────────────────────────────────
 async function loadReadme() {
   try {

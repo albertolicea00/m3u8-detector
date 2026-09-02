@@ -372,6 +372,30 @@
       </div>
       <div id="nb-status"></div>
     </div>
+
+    <div class="card" style="margin-top:12px">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9l6 3-6 3V9z"/></svg>
+        Local Downloader
+        <span class="badge">hls-local.sh</span>
+      </div>
+      <div class="card-desc">
+        Same pipeline as the Colab notebook but runs on your Mac/Linux machine and saves directly to <code>~/Downloads</code>. Requires <code>curl</code>, <code>ffmpeg</code>, <code>python3</code>.
+      </div>
+      <ol class="steps">
+        <li>Download the script below and make it executable: <code>chmod +x hls-local.sh</code></li>
+        <li>Export the JSON from the panel (<code>Save JSON</code>) on the movie page.</li>
+        <li>Run <code>./hls-local.sh path/to/m3u8_*.json</code> — script will prompt for output dir and options.</li>
+        <li>MP4 files saved to <code>~/Downloads</code> (or the directory you choose).</li>
+      </ol>
+      <div class="btn-group">
+        <button class="btn btn-green" id="btn-sh">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download hls-local.sh
+        </button>
+      </div>
+      <div id="sh-status"></div>
+    </div>
   </section>
 
   <!-- ── Help / README ── -->
