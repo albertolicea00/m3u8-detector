@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "M3U8 Detector",
-  "version": "1.5",
+  "version": "1.6",
   "description": "Detects HLS streams (m3u8) on pages you visit",
   "permissions": ["webRequest", "storage", "tabs", "cookies"],
   "host_permissions": ["<all_urls>"],

@@ -1,19 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048" width="512" height="512">
-  <!-- Top Centered Red Recording/Detection Dot -->
-  <circle cx="1024" cy="250" r="130" fill="#FF3B30" />
+  <!-- Red Recording/Detection Dot -->
+  <circle cx="210" cy="1024" r="190" fill="#FF3B30" />
 
-  <!-- Middle Centered Ultra-Bold M3U8 Text -->
-  <text x="1024" y="939" font-family="'Arial Black', 'Impact', 'SF Pro Display', sans-serif" font-weight="700" font-size="680" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="45" stroke-linejoin="round" text-anchor="middle">M3U8</text>
-
-  <!-- Bottom Centered Segment lines -->
-  <g fill="#FFFFFF">
-    <!-- Line 1: Symmetric 2 segments -->
-    <rect x="140" y="1320" width="820" height="220" rx="110" />
-    <rect x="1088" y="1320" width="820" height="220" rx="110" />
-
-    <!-- Line 2: Symmetric 3 segments -->
-    <rect x="140" y="1620" width="500" height="220" rx="110" />
-    <rect x="768" y="1620" width="512" height="220" rx="110" />
-    <rect x="1408" y="1620" width="500" height="220" rx="110" />
-  </g>
+  <!-- Lowercase m3u8 Text -->
+  <text x="490" y="1200" font-family="'Arial Black', 'Impact', 'SF Pro Display', 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="520" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="28" stroke-linejoin="round">m3u8</text>
 </svg>
