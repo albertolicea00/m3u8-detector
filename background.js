@@ -184,6 +184,21 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
     });
     return true;
   }
+  if (msg.type === 'SET_NAME') {
+    const tabId = sender.tab.id;
+    const { streamUrl, customName } = msg;
+    const entry = (detected[tabId] || []).find(e => e.streamUrl === streamUrl);
+    if (entry) entry.customName = customName;
+    chrome.storage.local.get('pinnedStreams', ({ pinnedStreams = [] }) => {
+      const pinned = pinnedStreams.find(e => e.streamUrl === streamUrl);
+      if (pinned) {
+        pinned.customName = customName;
+        chrome.storage.local.set({ pinnedStreams });
+      }
+      reply({ ok: true });
+    });
+    return true;
+  }
   if (msg.type === 'BODY_DETECTED') {
     addStream(sender.tab.id, msg.streamUrl, msg.pageUrl || '', msg.pageTitle || '');
   }

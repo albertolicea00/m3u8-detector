@@ -101,7 +101,15 @@
       gap: 3px;
     }
     .m-item:hover { background: #16213e; }
-    .m-page-title { font-size: 12px; color: #f0c040; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .m-name-input {
+      font-size: 12px; color: #f0c040; font-weight: 500;
+      background: transparent; border: none; border-bottom: 1px dashed transparent;
+      outline: none; width: 100%; padding: 1px 0; font-family: inherit;
+      cursor: default; transition: border-color .15s, background .15s;
+    }
+    .m-name-input::placeholder { color: #555; font-style: italic; }
+    .m-name-input:hover { border-bottom-color: #444; cursor: text; }
+    .m-name-input:focus { border-bottom-color: #f0c040; cursor: text; background: rgba(240,192,64,.04); }
     .m-page-url   { font-size: 10px; color: #555;    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .m-stream-url { font-size: 10px; color: #a8d8ea; word-break: break-all; line-height: 1.4; margin-top: 2px; }
     .m-row        { display: flex; align-items: center; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
@@ -243,15 +251,28 @@
     $('m-count').textContent = `${streams.length} stream${streams.length !== 1 ? 's' : ''}`;
     $('m-empty').style.display = streams.length ? 'none' : 'block';
 
-    [...streams].reverse().forEach(({ streamUrl, pageUrl, pageTitle, cookies = '', segments = null, segmentCount = null, ts, pinned = false }) => {
+    [...streams].reverse().forEach(({ streamUrl, pageUrl, pageTitle, customName = '', cookies = '', segments = null, segmentCount = null, ts, pinned = false }) => {
+      const displayName = customName || pageTitle || '';
       const item = document.createElement('div');
       item.className = pinned ? 'm-item pinned' : 'm-item';
 
-      if (pageTitle) {
-        const el = document.createElement('div');
-        el.className = 'm-page-title'; el.textContent = pageTitle; el.title = pageTitle;
-        item.appendChild(el);
-      }
+      const nameInput = document.createElement('input');
+      nameInput.className = 'm-name-input';
+      nameInput.value = displayName;
+      nameInput.placeholder = pageTitle || 'Untitled stream';
+      nameInput.title = 'Click to rename';
+      let _saved = nameInput.value;
+      nameInput.addEventListener('focus', () => { _saved = nameInput.value; });
+      nameInput.addEventListener('blur', () => {
+        const v = nameInput.value.trim();
+        if (v !== _saved) chrome.runtime.sendMessage({ type: 'SET_NAME', streamUrl, customName: v });
+      });
+      nameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') nameInput.blur();
+        if (e.key === 'Escape') { nameInput.value = _saved; nameInput.blur(); }
+      });
+      item.appendChild(nameInput);
+
       if (pageUrl) {
         const el = document.createElement('div');
         el.className = 'm-page-url'; el.textContent = pageUrl; el.title = pageUrl;
@@ -293,7 +314,7 @@
       if (pageUrl) row.appendChild(copyBtn('Copy page', pageUrl));
       if (cookies)  row.appendChild(copyBtn('Copy cookies', cookies));
       if (segments) {
-        const safe = (pageTitle || 'segments').replace(/[^a-z0-9]/gi, '_').slice(0, 30);
+        const safe = (customName || pageTitle || 'segments').replace(/[^a-z0-9]/gi, '_').slice(0, 40);
         const dlBtn = document.createElement('button');
         dlBtn.className = 'm-copy';
         dlBtn.textContent = `⬇ ${segmentCount} segs`;
@@ -331,8 +352,8 @@
   });
 
   function buildJSON() {
-    return JSON.stringify(streams.map(({ streamUrl, pageUrl, pageTitle, cookies = '', segments = null, segmentCount = null, ts }) => ({
-      pageTitle, pageUrl, streamUrl, cookies, segmentCount, segments,
+    return JSON.stringify(streams.map(({ streamUrl, pageUrl, pageTitle, customName = '', cookies = '', segments = null, segmentCount = null, ts }) => ({
+      name: customName || pageTitle, pageTitle, customName, pageUrl, streamUrl, cookies, segmentCount, segments,
       detectedAt: new Date(ts).toISOString(), detectedAtMs: ts,
     })), null, 2);
   }
