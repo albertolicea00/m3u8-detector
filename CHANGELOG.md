@@ -4,6 +4,29 @@ All notable changes to this project are documented here.
 
 ---
 
+## [1.9] — 2026-09-02
+
+### Added
+- **`hls-local.sh`** — interactive bash script (parallel curl, PNG-wrapper strip, ffmpeg mux) that downloads HLS and direct-MP4 streams to `~/Downloads` instead of Google Drive. Downloadable from the Options page alongside the Colab notebook.
+- **Local downloader card** in Options page with step-by-step instructions and download button.
+- **`src/scripts/`** directory for supplementary scripts; `tests/` reserved for automated tests.
+
+### Changed
+- `web_accessible_resources` now includes `src/scripts/hls-local.sh`.
+- ARCHITECTURE file map updated to reflect new folder structure.
+- Release ZIP command includes `src/` directory.
+
+---
+
+## [1.8] — 2026-09-02
+
+### Added
+- **New minimal app icon** — High-contrast, wall-to-wall design featuring a red detection dot and bold lowercase `m3u8` typography, scaled for maximum visibility across 16px to 512px icon sizes.
+- **Repository documentation** — Added `ARCHITECTURE.md` (system design, sequence diagram, build & release guides for Chrome Web Store and Firefox AMO), `CONTRIBUTING.md` (contribution guidelines), and `LICENSE` (MIT License).
+- **Local download script support** — Added `hls-local.sh` documentation for downloading HLS and direct MP4 streams locally on macOS/Linux via `ffmpeg`.
+
+---
+
 ## [1.7] — 2026-09-02
 
 ### Added
