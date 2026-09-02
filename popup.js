@@ -37,7 +37,7 @@ function render(streams) {
   }
   empty.style.display = 'none';
 
-  [...streams].reverse().forEach(({ streamUrl, pageUrl, pageTitle, ts }) => {
+  [...streams].reverse().forEach(({ streamUrl = '', pageUrl = '', pageTitle = '', ts }) => {
     const item = document.createElement('div');
     item.className = 'item';
 

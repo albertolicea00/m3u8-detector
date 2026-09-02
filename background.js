@@ -9,6 +9,10 @@ function addStream(tabId, streamUrl, pageUrl, pageTitle) {
   if (detected[tabId].some(e => e.streamUrl === streamUrl)) return;
   detected[tabId].push({ streamUrl, pageUrl: pageUrl || '', pageTitle: pageTitle || '', ts: Date.now() });
   updateBadge(tabId);
+  // Push live update to panel
+  chrome.tabs.sendMessage(tabId, { type: 'PANEL_UPDATE', streams: detected[tabId] }, () => {
+    chrome.runtime.lastError; // suppress "no receiver" errors
+  });
 }
 
 function updateBadge(tabId) {
@@ -36,7 +40,7 @@ chrome.webRequest.onBeforeRequest.addListener(
   { urls: ['<all_urls>'] }
 );
 
-// Detect by Content-Type header (catches obfuscated URLs like .txt serving m3u8)
+// Detect by Content-Type header
 chrome.webRequest.onHeadersReceived.addListener(
   (details) => {
     if (details.tabId < 0) return;
@@ -48,7 +52,7 @@ chrome.webRequest.onHeadersReceived.addListener(
   ['responseHeaders']
 );
 
-// Clear when tab navigates away
+// Clear on tab navigation
 chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
   if (changeInfo.status === 'loading' && changeInfo.url) {
     detected[tabId] = [];
@@ -60,8 +64,8 @@ chrome.tabs.onRemoved.addListener((tabId) => {
   delete detected[tabId];
 });
 
-// Respond to popup queries
 chrome.runtime.onMessage.addListener((msg, sender, reply) => {
+  // Popup
   if (msg.type === 'GET_STREAMS') {
     reply({ streams: detected[msg.tabId] || [] });
   }
@@ -70,8 +74,23 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
     updateBadge(msg.tabId);
     reply({ ok: true });
   }
+
+  // Panel (uses sender.tab.id — no need to pass tabId)
+  if (msg.type === 'GET_STREAMS_PANEL') {
+    reply({ streams: detected[sender.tab.id] || [] });
+  }
+  if (msg.type === 'CLEAR_PANEL') {
+    const tabId = sender.tab.id;
+    detected[tabId] = [];
+    updateBadge(tabId);
+    chrome.tabs.sendMessage(tabId, { type: 'PANEL_UPDATE', streams: [] }, () => { chrome.runtime.lastError; });
+    reply({ ok: true });
+  }
+
+  // Body-detected (from interceptor bridge)
   if (msg.type === 'BODY_DETECTED') {
     addStream(sender.tab.id, msg.streamUrl, msg.pageUrl || '', msg.pageTitle || '');
   }
+
   return true;
 });
