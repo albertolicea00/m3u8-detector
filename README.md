@@ -1,92 +1,115 @@
 # M3U8 Detector
 
-Chrome extension (Manifest V3) that detects HLS streams on any page, resolves segment URLs from the service worker (bypassing IP-locked playlist tokens), and exports everything needed to download streams with the companion Colab notebook.
+Chrome/Firefox extension (Manifest V3) that detects HLS streams on any page, resolves segment URLs from the service worker (bypassing IP-locked playlist tokens), detects direct MP4/WebM/MKV video requests, and exports everything needed to download streams with the companion Colab notebook or local bash script.
 
 ---
 
 ## Install
 
-1. Open `chrome://extensions`
-2. Enable **Developer mode** (top right)
-3. Click **Load unpacked** → select this folder (`m3u8-detector/`)
+**Chrome**
+1. `chrome://extensions` → enable **Developer mode**
+2. **Load unpacked** → select the `m3u8-detector/` folder
+
+**Firefox**
+1. `about:debugging` → **This Firefox** → **Load Temporary Add-on**
+2. Select `manifest.json` inside `m3u8-detector/`
 
 ---
 
 ## Files
 
 ```
-manifest.json      Extension manifest v3 (v1.4)
-background.js      Service worker — intercepts requests, resolves playlists, stores streams
-content.js         Injects interceptor.js into page; bridges XHR/fetch events to background
-interceptor.js     Runs in page MAIN world — wraps XHR and fetch to detect m3u8 URLs
-panel.js           Sidebar panel injected into every page (shadow DOM, Octotree-style)
-options.html       Options page — workflow guide + notebook download
-options.js         Options page logic — Colab notebook embedded as inline JSON string
-popup.html         (unused — kept for reference, not loaded by manifest)
-popup.js           (unused — kept for reference, not loaded by manifest)
+manifest.json           Extension manifest v3
+icon.svg                Source SVG icon
+src/
+  background.js         Service worker — intercepts requests, resolves playlists, stores streams
+  content.js            Injects interceptor.js into page; bridges XHR/fetch events to background
+  interceptor.js        Runs in page MAIN world — wraps XHR and fetch to detect m3u8 URLs
+  panel.js              Sidebar panel injected into every page (shadow DOM)
+  options.html          Options page — pinned streams, notebook/script download, help
+  options.js            Options page logic
+  notebooks/
+    hls-colab.ipynb     Google Colab notebook — HLS + direct MP4 → Google Drive
+  scripts/
+    hls-local.sh        Local bash script — HLS + direct MP4 → ~/Downloads
+  icons/
+    icon16.png … icon512.png
 ```
 
 ---
 
 ## Panel
 
-Click the toolbar icon to toggle the sidebar panel (or pin it open with 📌).
+Click the toolbar icon to toggle the sidebar panel.
 
 Each detected stream shows:
 - **Page title** (yellow) and page URL (gray)
-- **Stream URL** (blue)
+- **Stream URL** (blue) or "Direct video" label for MP4/WebM
 - Segment resolution status → `✓ N segments ready` once resolved
 - Copy buttons: stream URL, page URL, cookies
-- **⬇ N segs** button — downloads `_segments.txt` (one URL per line) — *alternative export*
+- **Pin** — survives Clear and page navigation
 - **⚙** → opens Options page
 
 Footer:
-- **Copy JSON** — copies all streams to clipboard
-- **Save JSON** — downloads `m3u8_<hostname>_<timestamp>.json` ← *use this with Colab*
+- **Save JSON** — downloads `m3u8_<hostname>_<timestamp>.json` ← *use this with Colab or hls-local.sh*
 - **Clear** — clears detected streams for current tab
 
 ---
 
-## Colab Workflow
+## Download workflow
 
-> Solves the IP-lock problem: morencius.com embeds `ip_cidr` in signed playlist URLs, so Colab (Google datacenter IP) gets 403. The extension resolves playlists from your browser (your IP) and exports the TikTok CDN segment URLs, which are NOT IP-locked.
+### Option A — Google Colab (saves to Google Drive)
 
-### Steps
-
-1. Go to the movie page. Extension intercepts the stream automatically.
-2. Wait for `✓ N segments ready` in the panel (usually 1–3 seconds).
-3. Click **Save JSON** → saves `m3u8_*.json` to your Downloads.
-4. Open Options (⚙) → click **⬇ Download hls-colab.ipynb** → open in Google Colab.
-5. Run **Cell 1** (installs ffmpeg, mounts Drive).
-6. Run **Cell 2** → click **⬆ Load JSON** → select the `m3u8_*.json` file.
-   - Auto-populates all detected streams as downloadable movies.
-   - Each stream uses `pageTitle` as the movie name.
-7. Click **✓ Apply**.
-8. Run **Cell 3** (loads functions), then **Cell 4** (downloads + muxes → Drive).
+1. Browse to the movie page — extension auto-detects and resolves segments.
+2. Wait for `✓ N segments ready` → click **Save JSON**.
+3. Open Options → **Download hls-colab.ipynb** → open in Google Colab.
+4. Run Cell 1 → Cell 2 → **Load JSON** → select file → **Apply** → run Cell 3 & 4.
 
 Output: `MyDrive/Movies/<name>.mp4`
 
-### JSON export format
+### Option B — Local script (saves to ~/Downloads)
+
+1. Open Options → **Download hls-local.sh**
+2. `chmod +x hls-local.sh`
+3. `./hls-local.sh path/to/m3u8_*.json`
+
+Requires: `curl`, `ffmpeg`, `python3`
+
+---
+
+## Colab technical notes
+
+> Solves the IP-lock problem: some sites embed `ip_cidr` in signed playlist URLs so Colab (Google datacenter IP) gets 403. The extension resolves playlists from your browser (your IP) and exports the CDN segment URLs, which are NOT IP-locked.
+
+- **PNG wrapper**: TikTok CDN segments have a 1×1 PNG prepended to disguise MPEG-TS. Both the notebook and `hls-local.sh` detect the `\x89PNG` magic bytes and strip the wrapper up to the `IEND` marker.
+- **Shadow DOM panel**: `panel.js` uses a shadow root — extension styles never bleed into the host page.
+- **Bridge pattern**: `interceptor.js` (MAIN world) dispatches `CustomEvent` → `content.js` (isolated world) → `chrome.runtime.sendMessage` → background.
+
+---
+
+## JSON export format
 
 ```json
 [
   {
     "pageTitle": "Toy Story 5",
-    "pageUrl": "https://morencius.com/...",
-    "streamUrl": "https://…/master.m3u8",
+    "pageUrl": "https://example.com/...",
+    "streamUrl": "https://cdn.example.com/master.m3u8",
+    "streamType": "hls",
     "cookies": "popUnderAdsEnabled=true",
     "segmentCount": 611,
-    "segments": ["https://cdn.tiktok.com/…/seg001.image", "…"],
+    "segments": ["https://cdn.example.com/seg001.ts", "…"],
     "detectedAt": "2026-09-02T10:00:00.000Z"
   }
 ]
 ```
 
+`streamType` is `"hls"` or `"direct"` (for MP4/WebM detected via `<video>` element).
+
 ---
 
-## Technical notes
+## Docs
 
-- **IP-lock bypass**: `resolveSegments()` in `background.js` runs inside the Chrome service worker — same machine, same IP as the browser. Fetches the IP-locked playlist successfully. TikTok CDN segment URLs are time-limited (via `x-expires`) but NOT IP-locked, so Colab downloads them fine.
-- **PNG wrapper**: TikTok CDN segments have a 1×1 PNG prepended to disguise MPEG-TS as image files. The Colab notebook detects the `\x89PNG` magic bytes and strips the wrapper up to the `IEND` marker before muxing.
-- **Shadow DOM panel**: `panel.js` creates a shadow root so extension styles never bleed into the host page.
-- **Bridge pattern**: `interceptor.js` runs in the page MAIN world (can intercept XHR/fetch) but cannot access `chrome.runtime`. It dispatches a `CustomEvent` → `content.js` (isolated world) picks it up → forwards to background via `chrome.runtime.sendMessage`.
+- [ARCHITECTURE.md](ARCHITECTURE.md) — system design, component diagram, build & release guide
+- [CONTRIBUTING.md](CONTRIBUTING.md) — contribution guidelines
+- [CHANGELOG.md](CHANGELOG.md) — version history

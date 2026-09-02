@@ -82,7 +82,7 @@ sequenceDiagram
 ```text
 m3u8-detector/
 ├── manifest.json          # Chrome Extension Manifest V3 + Firefox gecko settings
-├── icons/                 # Extension toolbar & store icons (16/32/48/128/512 px)
+├── icon.svg               # Source SVG icon (for generating PNGs)
 ├── src/
 │   ├── background.js      # Service worker: request interception, segment resolution, pin storage
 │   ├── content.js         # Content script bridge between MAIN & ISOLATED worlds
@@ -90,12 +90,13 @@ m3u8-detector/
 │   ├── panel.js           # Shadow DOM sidebar panel UI (theme-aware)
 │   ├── options.html       # Options page: pinned streams, notebook/script download, help
 │   ├── options.js         # Options logic: storage reader, notebook/script downloader
+│   ├── icons/             # Extension toolbar & store icons (16/32/48/128/512 px PNGs)
 │   ├── notebooks/
 │   │   └── hls-colab.ipynb  # Google Colab notebook: HLS + direct MP4 → Google Drive
 │   └── scripts/
 │       └── hls-local.sh     # Local bash script: HLS + direct MP4 → ~/Downloads
-├── tests/                 # (reserved for automated tests)
-├── dist/                  # (reserved for release ZIPs)
+├── tests/                 # Automated tests
+├── dist/                  # Release ZIPs (generated, not committed)
 ├── README.md              # Project overview & usage guide
 ├── CHANGELOG.md           # Version history and release notes
 ├── CONTRIBUTING.md        # Contribution guidelines
