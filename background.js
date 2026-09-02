@@ -4,10 +4,25 @@ const CONTENT_TYPE_RE = /mpegurl|x-mpegURL/i;
 // detected[tabId] = [{streamUrl, pageUrl, pageTitle, cookies, segments, segmentCount, ts}]
 let detected = {};
 
+function getMergedStreams(tabId, cb) {
+  chrome.storage.local.get('pinnedStreams', ({ pinnedStreams = [] }) => {
+    const tabEntries = (detected[tabId] || []).map(e => ({
+      ...e, pinned: pinnedStreams.some(p => p.streamUrl === e.streamUrl),
+    }));
+    const tabUrls = new Set(tabEntries.map(e => e.streamUrl));
+    const extraPinned = pinnedStreams
+      .filter(p => !tabUrls.has(p.streamUrl))
+      .map(e => ({ ...e, pinned: true }));
+    cb([...tabEntries, ...extraPinned]);
+  });
+}
+
 function pushUpdate(tabId) {
   updateBadge(tabId);
-  chrome.tabs.sendMessage(tabId, { type: 'PANEL_UPDATE', streams: detected[tabId] }, () => {
-    chrome.runtime.lastError;
+  getMergedStreams(tabId, (streams) => {
+    chrome.tabs.sendMessage(tabId, { type: 'PANEL_UPDATE', streams }, () => {
+      chrome.runtime.lastError;
+    });
   });
 }
 
@@ -136,15 +151,38 @@ chrome.tabs.onRemoved.addListener((tabId) => { delete detected[tabId]; });
 
 chrome.runtime.onMessage.addListener((msg, sender, reply) => {
   if (msg.type === 'GET_STREAMS')      reply({ streams: detected[msg.tabId] || [] });
-  if (msg.type === 'GET_STREAMS_PANEL') reply({ streams: detected[sender.tab.id] || [] });
+  if (msg.type === 'GET_STREAMS_PANEL') {
+    getMergedStreams(sender.tab.id, (streams) => reply({ streams }));
+    return true;
+  }
   if (msg.type === 'CLEAR') {
     detected[msg.tabId] = []; updateBadge(msg.tabId); reply({ ok: true });
   }
   if (msg.type === 'CLEAR_PANEL') {
     const id = sender.tab.id;
     detected[id] = []; updateBadge(id);
-    chrome.tabs.sendMessage(id, { type: 'PANEL_UPDATE', streams: [] }, () => { chrome.runtime.lastError; });
+    getMergedStreams(id, (streams) => {
+      chrome.tabs.sendMessage(id, { type: 'PANEL_UPDATE', streams }, () => { chrome.runtime.lastError; });
+    });
     reply({ ok: true });
+  }
+  if (msg.type === 'TOGGLE_PIN') {
+    const tabId = sender.tab.id;
+    const { streamUrl } = msg;
+    chrome.storage.local.get('pinnedStreams', ({ pinnedStreams = [] }) => {
+      const idx = pinnedStreams.findIndex(e => e.streamUrl === streamUrl);
+      if (idx >= 0) {
+        pinnedStreams.splice(idx, 1);
+      } else {
+        const entry = (detected[tabId] || []).find(e => e.streamUrl === streamUrl);
+        if (entry) pinnedStreams.push({ ...entry });
+      }
+      chrome.storage.local.set({ pinnedStreams }, () => {
+        pushUpdate(tabId);
+        reply({ ok: true });
+      });
+    });
+    return true;
   }
   if (msg.type === 'BODY_DETECTED') {
     addStream(sender.tab.id, msg.streamUrl, msg.pageUrl || '', msg.pageTitle || '');

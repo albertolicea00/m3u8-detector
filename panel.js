@@ -27,7 +27,7 @@
       color: #fff;
       font: 600 11px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       padding: 12px 5px;
-      border-radius: 6px 0 0 6px;
+      border-radius: 0 6px 6px 0;
       writing-mode: vertical-rl;
       transform: rotate(180deg);
       letter-spacing: 1px;
@@ -119,6 +119,23 @@
     }
     .m-copy:hover { background: #e94560; border-color: #e94560; color: #fff; }
     .m-copy.ok    { background: #2e7d32; border-color: #2e7d32; color: #fff; }
+
+    .m-pin-btn {
+      font-size: 12px;
+      padding: 2px 5px;
+      border: 1px solid #333;
+      background: transparent;
+      border-radius: 3px;
+      cursor: pointer;
+      opacity: 0.35;
+      transition: opacity .15s, border-color .15s;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .m-pin-btn:hover  { opacity: 0.8; border-color: #f0c040; }
+    .m-pin-btn.pinned { opacity: 1; border-color: #f0c040; background: rgba(240,192,64,.12); }
+
+    .m-item.pinned { border-left: 2px solid #f0c040; }
 
     /* footer */
     .m-footer {
@@ -226,9 +243,9 @@
     $('m-count').textContent = `${streams.length} stream${streams.length !== 1 ? 's' : ''}`;
     $('m-empty').style.display = streams.length ? 'none' : 'block';
 
-    [...streams].reverse().forEach(({ streamUrl, pageUrl, pageTitle, cookies = '', segments = null, segmentCount = null, ts }) => {
+    [...streams].reverse().forEach(({ streamUrl, pageUrl, pageTitle, cookies = '', segments = null, segmentCount = null, ts, pinned = false }) => {
       const item = document.createElement('div');
-      item.className = 'm-item';
+      item.className = pinned ? 'm-item pinned' : 'm-item';
 
       if (pageTitle) {
         const el = document.createElement('div');
@@ -258,6 +275,15 @@
 
       const row = document.createElement('div');
       row.className = 'm-row';
+
+      const pinBtn = document.createElement('button');
+      pinBtn.className = pinned ? 'm-pin-btn pinned' : 'm-pin-btn';
+      pinBtn.textContent = '📌';
+      pinBtn.title = pinned ? 'Unpin (will be removed on Clear)' : 'Pin (survives Clear)';
+      pinBtn.addEventListener('click', () => {
+        chrome.runtime.sendMessage({ type: 'TOGGLE_PIN', streamUrl });
+      });
+      row.appendChild(pinBtn);
 
       const time = document.createElement('span');
       time.className = 'm-time';
