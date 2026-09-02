@@ -74,13 +74,16 @@
       background: none;
       border: none;
       cursor: pointer;
-      color: #666;
-      font-size: 13px;
-      padding: 3px 5px;
-      border-radius: 3px;
-      line-height: 1;
+      color: #555;
+      padding: 4px;
+      border-radius: 4px;
+      line-height: 0;
       flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      transition: color .15s, background .15s;
     }
+    .m-icon svg { width: 14px; height: 14px; }
     .m-icon:hover { background: #0f3460; color: #e0e0e0; }
     .m-icon.on    { color: #e94560; }
 
@@ -129,21 +132,28 @@
     .m-copy.ok    { background: #2e7d32; border-color: #2e7d32; color: #fff; }
 
     .m-pin-btn {
-      font-size: 12px;
-      padding: 2px 5px;
-      border: 1px solid #333;
+      padding: 3px;
+      border: 1px solid transparent;
       background: transparent;
       border-radius: 3px;
       cursor: pointer;
-      opacity: 0.35;
-      transition: opacity .15s, border-color .15s;
-      line-height: 1;
+      color: #444;
+      line-height: 0;
       flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      transition: color .15s, border-color .15s, background .15s;
     }
-    .m-pin-btn:hover  { opacity: 0.8; border-color: #f0c040; }
-    .m-pin-btn.pinned { opacity: 1; border-color: #f0c040; background: rgba(240,192,64,.12); }
+    .m-pin-btn svg { width: 13px; height: 13px; }
+    .m-pin-btn:hover  { color: #f0c040; border-color: #f0c040; }
+    .m-pin-btn.pinned { color: #f0c040; border-color: rgba(240,192,64,.4); background: rgba(240,192,64,.08); }
 
-    .m-item.pinned { border-left: 2px solid #f0c040; }
+    .m-item.pinned { border-left: 2px solid rgba(240,192,64,.5); }
+    .m-pinned-divider {
+      font-size: 9px; text-transform: uppercase; letter-spacing: 1.2px;
+      color: rgba(240,192,64,.5); padding: 6px 12px 3px;
+      border-top: 1px solid rgba(240,192,64,.15);
+    }
 
     /* footer */
     .m-footer {
@@ -183,9 +193,9 @@
     <div class="m-header">
       <span class="m-title">M3U8 Detector</span>
       <span class="m-count" id="m-count">0 streams</span>
-      <button class="m-icon" id="m-opts" title="Options / Download Notebook">⚙</button>
-      <button class="m-icon" id="m-pin" title="Pin panel">📌</button>
-      <button class="m-icon" id="m-close" title="Close">✕</button>
+      <button class="m-icon" id="m-opts" title="Options / Download Notebook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      <button class="m-icon" id="m-pin" title="Pin panel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17H19V15L17 13V7L18 6H6L7 7V13L5 15Z"/></svg></button>
+      <button class="m-icon" id="m-close" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="m-body" id="m-body">
       <div class="m-empty" id="m-empty">No streams detected on this page.</div>
@@ -245,14 +255,27 @@
 
   function render() {
     const body = $('m-body');
-    body.querySelectorAll('.m-item').forEach(el => el.remove());
+    body.querySelectorAll('.m-item, .m-pinned-divider').forEach(el => el.remove());
 
     tab.textContent = `M3U8 (${streams.length})`;
     $('m-count').textContent = `${streams.length} stream${streams.length !== 1 ? 's' : ''}`;
     $('m-empty').style.display = streams.length ? 'none' : 'block';
 
-    [...streams].reverse().forEach(({ streamUrl, pageUrl, pageTitle, customName = '', cookies = '', segments = null, segmentCount = null, ts, pinned = false }) => {
+    const unpinned = streams.filter(s => !s.pinned).sort((a, b) => b.ts - a.ts);
+    const pinned_  = streams.filter(s =>  s.pinned).sort((a, b) => b.ts - a.ts);
+    const sorted   = [...unpinned, ...pinned_];
+
+    sorted.forEach(({ streamUrl, pageUrl, pageTitle, customName = '', cookies = '', segments = null, segmentCount = null, ts, pinned = false }) => {
       const displayName = customName || pageTitle || '';
+
+      // Insert divider before first pinned item
+      if (pinned && !body.querySelector('.m-pinned-divider')) {
+        const div = document.createElement('div');
+        div.className = 'm-pinned-divider';
+        div.textContent = 'Pinned';
+        body.appendChild(div);
+      }
+
       const item = document.createElement('div');
       item.className = pinned ? 'm-item pinned' : 'm-item';
 
@@ -299,8 +322,10 @@
 
       const pinBtn = document.createElement('button');
       pinBtn.className = pinned ? 'm-pin-btn pinned' : 'm-pin-btn';
-      pinBtn.textContent = '📌';
-      pinBtn.title = pinned ? 'Unpin (will be removed on Clear)' : 'Pin (survives Clear)';
+      pinBtn.innerHTML = pinned
+        ? `<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M5 17H19V15L17 13V7L18 6H6L7 7V13L5 15Z"/><rect x="11" y="17" width="2" height="5" rx="1"/></svg>`
+        : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17H19V15L17 13V7L18 6H6L7 7V13L5 15Z"/></svg>`;
+      pinBtn.title = pinned ? 'Unpin (removed on Clear)' : 'Pin (survives Clear)';
       pinBtn.addEventListener('click', () => {
         chrome.runtime.sendMessage({ type: 'TOGGLE_PIN', streamUrl });
       });
