@@ -123,7 +123,7 @@ function loadPinnedStreams() {
 document.getElementById('btn-nb').addEventListener('click', async () => {
   const status = document.getElementById('nb-status');
   try {
-    const res  = await fetch(chrome.runtime.getURL('hls-colab.ipynb'));
+    const res  = await fetch(chrome.runtime.getURL('src/notebooks/hls-colab.ipynb'));
     const blob = await res.blob();
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);

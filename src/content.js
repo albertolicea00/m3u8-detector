@@ -1,6 +1,6 @@
 // Inject interceptor into page's main JS world (before any player code runs)
 const s = document.createElement('script');
-s.src = chrome.runtime.getURL('interceptor.js');
+s.src = chrome.runtime.getURL('src/interceptor.js');
 (document.head || document.documentElement).prepend(s);
 s.onload = () => s.remove();
 
