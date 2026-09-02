@@ -20,6 +20,20 @@
       --radius:  8px;
     }
 
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg:     #ffffff;
+        --bg2:    #f6f8fa;
+        --bg3:    #eaeef2;
+        --border: #d0d7de;
+        --blue:   #0969da;
+        --green:  #1a7f37;
+        --yellow: #9a6700;
+        --text:   #1f2328;
+        --muted:  #656d76;
+      }
+    }
+
     html { scroll-behavior: smooth; }
 
     body {
@@ -200,7 +214,7 @@
     .btn-red:hover   { background: var(--accent); color: #fff; }
     .btn-muted { border-color: var(--border); color: var(--muted); }
     .btn-muted:hover { border-color: var(--text); color: var(--text); }
-    .btn.ok { background: #1f6030; border-color: var(--green); color: var(--green); }
+    .btn.ok { background: rgba(63,185,80,.15); border-color: var(--green); color: var(--green); }
     .btn-group { display: flex; gap: 10px; flex-wrap: wrap; }
     #nb-status { margin-top: 10px; font-size: 11px; color: var(--green); min-height: 16px; }
 
