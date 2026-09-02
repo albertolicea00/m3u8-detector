@@ -253,6 +253,42 @@
 
   const $ = id => shadow.getElementById(id);
 
+  // ── Extension-context guards ──────────────────────────────────────────────
+  function isCtx() {
+    try { return !!chrome.runtime?.id; } catch { return false; }
+  }
+
+  function sendMsg(msg, cb) {
+    if (!isCtx()) { showStale(); return; }
+    try {
+      chrome.runtime.sendMessage(msg, cb || (() => { void chrome.runtime.lastError; }));
+    } catch (e) {
+      if (/context/i.test(e.message)) showStale();
+    }
+  }
+
+  function safeStorage(fn) {
+    if (!isCtx()) { showStale(); return; }
+    try { fn(); } catch (e) { if (/context/i.test(e.message)) showStale(); }
+  }
+
+  function showStale() {
+    const body = $('m-body');
+    if (body.querySelector('.m-stale')) return;
+    body.innerHTML = '';
+    const msg = document.createElement('div');
+    msg.className = 'm-stale';
+    msg.style.cssText = 'padding:24px 14px;text-align:center;color:var(--p-muted);font-size:12px;line-height:1.7;';
+    msg.innerHTML = 'Extension reloaded.<br>Reload the page to reconnect.';
+    const btn = document.createElement('button');
+    btn.textContent = 'Reload page';
+    btn.style.cssText = 'margin-top:10px;display:block;width:100%;padding:5px 0;border:1px solid var(--p-border);background:var(--p-bg2);color:var(--p-text);border-radius:4px;cursor:pointer;font-size:11px;';
+    btn.addEventListener('click', () => location.reload());
+    msg.appendChild(btn);
+    body.appendChild(msg);
+    tab.textContent = 'M3U8 (!)';
+  }
+
   function open() {
     isOpen = true;
     panel.classList.add('open');
@@ -267,14 +303,14 @@
   function setPin(val) {
     isPinned = val;
     $('m-pin').classList.toggle('on', isPinned);
-    chrome.storage.local.set({ m3u8_pinned: isPinned });
+    safeStorage(() => chrome.storage.local.set({ m3u8_pinned: isPinned }));
     if (!isPinned && !isOpen) panel.classList.remove('open');
   }
 
   // Restore pin
-  chrome.storage.local.get('m3u8_pinned', ({ m3u8_pinned }) => {
+  safeStorage(() => chrome.storage.local.get('m3u8_pinned', ({ m3u8_pinned }) => {
     if (m3u8_pinned) { isPinned = true; $('m-pin').classList.add('on'); open(); }
-  });
+  }));
 
   // ── Render ────────────────────────────────────────────────────────────────
   function copyBtn(label, text) {
@@ -326,7 +362,7 @@
       nameInput.addEventListener('focus', () => { _saved = nameInput.value; });
       nameInput.addEventListener('blur', () => {
         const v = nameInput.value.trim();
-        if (v !== _saved) chrome.runtime.sendMessage({ type: 'SET_NAME', streamUrl, customName: v });
+        if (v !== _saved) sendMsg({ type: 'SET_NAME', streamUrl, customName: v });
       });
       nameInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') nameInput.blur();
@@ -368,7 +404,7 @@
         : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17H19V15L17 13V7L18 6H6L7 7V13L5 15Z"/></svg>`;
       pinBtn.title = pinned ? 'Unpin (removed on Clear)' : 'Pin (survives Clear)';
       pinBtn.addEventListener('click', () => {
-        chrome.runtime.sendMessage({ type: 'TOGGLE_PIN', streamUrl });
+        sendMsg({ type: 'TOGGLE_PIN', streamUrl });
       });
       row.appendChild(pinBtn);
 
@@ -402,7 +438,7 @@
   // ── Event listeners ───────────────────────────────────────────────────────
   tab.addEventListener('click', () => { isOpen ? close() : open(); });
 
-  $('m-opts').addEventListener('click', () => { chrome.runtime.sendMessage({ type: 'OPEN_OPTIONS' }); });
+  $('m-opts').addEventListener('click', () => { sendMsg({ type: 'OPEN_OPTIONS' }); });
   $('m-close').addEventListener('click', () => { setPin(false); close(); });
   $('m-pin').addEventListener('click', () => { setPin(!isPinned); if (isPinned) open(); });
 
@@ -412,9 +448,7 @@
   }, true);
 
   $('m-clear').addEventListener('click', () => {
-    chrome.runtime.sendMessage({ type: 'CLEAR_PANEL' }, () => {
-      streams = []; render();
-    });
+    sendMsg({ type: 'CLEAR_PANEL' }, () => { streams = []; render(); });
   });
 
   function buildJSON() {
@@ -441,13 +475,13 @@
   });
 
   // ── Init from background ──────────────────────────────────────────────────
-  chrome.runtime.sendMessage({ type: 'GET_STREAMS_PANEL' }, (res) => {
+  sendMsg({ type: 'GET_STREAMS_PANEL' }, (res) => {
     streams = (res && res.streams) || [];
     render();
   });
 
   // Live push + toggle from background
-  chrome.runtime.onMessage.addListener((msg) => {
+  try { chrome.runtime.onMessage.addListener((msg) => {
     if (msg.type === 'PANEL_TOGGLE') { isOpen ? close() : open(); return; }
     if (msg.type !== 'PANEL_UPDATE') return;
     streams = msg.streams;
@@ -456,5 +490,5 @@
       tab.style.background = '#ff6b6b';
       setTimeout(() => { tab.style.background = ''; }, 600);
     }
-  });
+  }); } catch { /* context already gone */ }
 })();
