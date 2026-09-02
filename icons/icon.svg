@@ -1,13 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Red Recording/Detection Dot before M3U8 -->
+  <circle cx="95" cy="285" r="22" fill="#FF3B30" />
+
   <!-- M3U8 Text -->
-  <text x="256" y="317" font-family="system-ui, -apple-system, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="98" fill="#FFFFFF" text-anchor="middle">M3U8</text>
+  <text x="282" y="317" font-family="system-ui, -apple-system, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="98" fill="#FFFFFF" text-anchor="middle">M3U8</text>
+
   <!-- Segment lines underneath -->
   <g fill="#FFFFFF">
     <!-- Line 1: segment fragments -->
-    <rect x="110" y="340" width="135" height="18" rx="9" />
-    <rect x="265" y="340" width="137" height="18" rx="9" />
+    <rect x="70" y="340" width="165" height="18" rx="9" />
+    <rect x="250" y="340" width="192" height="18" rx="9" />
     <!-- Line 2: segment fragments -->
-    <rect x="110" y="375" width="180" height="18" rx="9" />
-    <rect x="310" y="375" width="92" height="18" rx="9" />
+    <rect x="70" y="375" width="220" height="18" rx="9" />
+    <rect x="305" y="375" width="137" height="18" rx="9" />
   </g>
 </svg>
