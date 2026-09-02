@@ -1,8 +1,14 @@
 {
   "manifest_version": 3,
   "name": "M3U8 Detector",
-  "version": "1.7",
+  "version": "1.8",
   "description": "Detects HLS streams (m3u8) on pages you visit",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "m3u8-detector@albertolicea00",
+      "strict_min_version": "109.0"
+    }
+  },
   "permissions": ["webRequest", "storage", "tabs", "cookies"],
   "host_permissions": ["<all_urls>"],
   "background": {
