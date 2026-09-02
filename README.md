@@ -56,7 +56,7 @@ Footer:
 1. Go to the movie page. Extension intercepts the stream automatically.
 2. Wait for `✓ N segments ready` in the panel (usually 1–3 seconds).
 3. Click **Save JSON** → saves `m3u8_*.json` to your Downloads.
-4. Open Options (⚙) → click **⬇ Download downloader.ipynb** → open in Google Colab.
+4. Open Options (⚙) → click **⬇ Download hls-colab.ipynb** → open in Google Colab.
 5. Run **Cell 1** (installs ffmpeg, mounts Drive).
 6. Run **Cell 2** → click **⬆ Load JSON** → select the `m3u8_*.json` file.
    - Auto-populates all detected streams as downloadable movies.

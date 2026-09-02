@@ -7,11 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-nb').addEventListener('click', async () => {
     const status = document.getElementById('nb-status');
     try {
-      const res = await fetch(chrome.runtime.getURL('downloader.ipynb'));
+      const res = await fetch(chrome.runtime.getURL('hls-colab.ipynb'));
       const blob = await res.blob();
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = 'downloader.ipynb';
+      a.download = 'hls-colab.ipynb';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
