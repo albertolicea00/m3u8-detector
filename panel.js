@@ -361,7 +361,7 @@
   // ── Event listeners ───────────────────────────────────────────────────────
   tab.addEventListener('click', () => { isOpen ? close() : open(); });
 
-  $('m-opts').addEventListener('click', () => { chrome.runtime.openOptionsPage(); });
+  $('m-opts').addEventListener('click', () => { chrome.runtime.sendMessage({ type: 'OPEN_OPTIONS' }); });
   $('m-close').addEventListener('click', () => { setPin(false); close(); });
   $('m-pin').addEventListener('click', () => { setPin(!isPinned); if (isPinned) open(); });
 

@@ -199,6 +199,9 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
     });
     return true;
   }
+  if (msg.type === 'OPEN_OPTIONS') {
+    chrome.runtime.openOptionsPage();
+  }
   if (msg.type === 'BODY_DETECTED') {
     addStream(sender.tab.id, msg.streamUrl, msg.pageUrl || '', msg.pageTitle || '');
   }
