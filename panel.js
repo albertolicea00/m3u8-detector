@@ -16,6 +16,44 @@
   style.textContent = `
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* ── Dark tokens — GitHub dark style (matches Options page) ── */
+    :host {
+      --p-bg:        #0d1117;
+      --p-bg2:       #161b22;
+      --p-border:    #30363d;
+      --p-text:      #c9d1d9;
+      --p-muted:     #8b949e;
+      --p-muted2:    #6e7681;
+      --p-muted3:    #484f58;
+      --p-accent:    #e94560;
+      --p-url:       #58a6ff;
+      --p-name:      #d29922;
+      --p-copy-bg:   #21262d;
+      --p-copy-text: #58a6ff;
+      --p-shadow:    rgba(0,0,0,.5);
+      --p-green:     #3fb950;
+    }
+
+    /* ── Light tokens — GitHub light style ── */
+    @media (prefers-color-scheme: light) {
+      :host {
+        --p-bg:        #ffffff;
+        --p-bg2:       #f6f8fa;
+        --p-border:    #d0d7de;
+        --p-text:      #1f2328;
+        --p-muted:     #656d76;
+        --p-muted2:    #8b949e;
+        --p-muted3:    #999;
+        --p-accent:    #e94560;
+        --p-url:       #0969da;
+        --p-name:      #9a6700;
+        --p-copy-bg:   #eaeef2;
+        --p-copy-text: #0969da;
+        --p-shadow:    rgba(0,0,0,.12);
+        --p-green:     #1a7f37;
+      }
+    }
+
     /* ── Tab handle (collapsed) ── */
     .m-tab {
       position: absolute;
@@ -23,7 +61,7 @@
       top: 38%;
       pointer-events: all;
       cursor: pointer;
-      background: #e94560;
+      background: var(--p-accent);
       color: #fff;
       font: 600 11px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       padding: 12px 5px;
@@ -32,7 +70,7 @@
       transform: rotate(180deg);
       letter-spacing: 1px;
       user-select: none;
-      box-shadow: -2px 0 8px rgba(0,0,0,.35);
+      box-shadow: -2px 0 8px var(--p-shadow);
       transition: background .15s, right .2s;
     }
     .m-tab:hover { background: #c62a47; }
@@ -45,16 +83,16 @@
       right: -381px;
       width: 380px;
       height: 100%;
-      background: #1a1a2e;
-      border-left: 1px solid #0f3460;
+      background: var(--p-bg);
+      border-left: 1px solid var(--p-border);
       pointer-events: all;
       display: flex;
       flex-direction: column;
       transition: right .2s ease;
-      box-shadow: -4px 0 20px rgba(0,0,0,.45);
+      box-shadow: -4px 0 20px var(--p-shadow);
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       font-size: 13px;
-      color: #e0e0e0;
+      color: var(--p-text);
     }
     .m-panel.open { right: 0; }
 
@@ -64,17 +102,17 @@
       align-items: center;
       gap: 6px;
       padding: 10px 12px;
-      background: #16213e;
-      border-bottom: 1px solid #0f3460;
+      background: var(--p-bg2);
+      border-bottom: 1px solid var(--p-border);
       flex-shrink: 0;
     }
-    .m-title  { color: #e94560; font-size: 14px; font-weight: 600; flex: 1; }
-    .m-count  { color: #888; font-size: 11px; }
+    .m-title  { color: var(--p-accent); font-size: 14px; font-weight: 600; flex: 1; }
+    .m-count  { color: var(--p-muted); font-size: 11px; }
     .m-icon {
       background: none;
       border: none;
       cursor: pointer;
-      color: #555;
+      color: var(--p-muted2);
       padding: 4px;
       border-radius: 4px;
       line-height: 0;
@@ -84,52 +122,52 @@
       transition: color .15s, background .15s;
     }
     .m-icon svg { width: 14px; height: 14px; }
-    .m-icon:hover { background: #0f3460; color: #e0e0e0; }
-    .m-icon.on    { color: #e94560; }
+    .m-icon:hover { background: var(--p-border); color: var(--p-text); }
+    .m-icon.on    { color: var(--p-accent); }
 
     /* body / list */
     .m-body {
       flex: 1;
       overflow-y: auto;
       scrollbar-width: thin;
-      scrollbar-color: #0f3460 transparent;
+      scrollbar-color: var(--p-border) transparent;
     }
-    .m-empty { padding: 28px 14px; color: #444; text-align: center; font-size: 12px; }
+    .m-empty { padding: 28px 14px; color: var(--p-muted3); text-align: center; font-size: 12px; }
 
     .m-item {
       padding: 9px 12px;
-      border-bottom: 1px solid #0f3460;
+      border-bottom: 1px solid var(--p-border);
       display: flex;
       flex-direction: column;
       gap: 3px;
     }
-    .m-item:hover { background: #16213e; }
+    .m-item:hover { background: var(--p-bg2); }
     .m-name-input {
-      font-size: 12px; color: #f0c040; font-weight: 500;
+      font-size: 12px; color: var(--p-name); font-weight: 500;
       background: transparent; border: none; border-bottom: 1px dashed transparent;
       outline: none; width: 100%; padding: 1px 0; font-family: inherit;
       cursor: default; transition: border-color .15s, background .15s;
     }
-    .m-name-input::placeholder { color: #555; font-style: italic; }
-    .m-name-input:hover { border-bottom-color: #444; cursor: text; }
-    .m-name-input:focus { border-bottom-color: #f0c040; cursor: text; background: rgba(240,192,64,.04); }
-    .m-page-url   { font-size: 10px; color: #555;    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .m-stream-url { font-size: 10px; color: #a8d8ea; word-break: break-all; line-height: 1.4; margin-top: 2px; }
+    .m-name-input::placeholder { color: var(--p-muted2); font-style: italic; }
+    .m-name-input:hover { border-bottom-color: var(--p-muted3); cursor: text; }
+    .m-name-input:focus { border-bottom-color: var(--p-name); cursor: text; background: rgba(240,192,64,.04); }
+    .m-page-url   { font-size: 10px; color: var(--p-muted2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .m-stream-url { font-size: 10px; color: var(--p-url);    word-break: break-all; line-height: 1.4; margin-top: 2px; }
     .m-row        { display: flex; align-items: center; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
-    .m-time       { font-size: 10px; color: #444; flex: 1; }
+    .m-time       { font-size: 10px; color: var(--p-muted3); flex: 1; }
 
     .m-copy {
       font-size: 10px;
       padding: 2px 6px;
-      border: 1px solid #0f3460;
-      background: #0f3460;
-      color: #a8d8ea;
+      border: 1px solid var(--p-border);
+      background: var(--p-copy-bg);
+      color: var(--p-copy-text);
       border-radius: 3px;
       cursor: pointer;
       white-space: nowrap;
     }
-    .m-copy:hover { background: #e94560; border-color: #e94560; color: #fff; }
-    .m-copy.ok    { background: #2e7d32; border-color: #2e7d32; color: #fff; }
+    .m-copy:hover { background: var(--p-accent); border-color: var(--p-accent); color: #fff; }
+    .m-copy.ok    { background: var(--p-green); border-color: var(--p-green); color: #fff; }
 
     .m-pin-btn {
       padding: 3px;
@@ -137,7 +175,7 @@
       background: transparent;
       border-radius: 3px;
       cursor: pointer;
-      color: #444;
+      color: var(--p-muted3);
       line-height: 0;
       flex-shrink: 0;
       display: flex;
@@ -145,8 +183,8 @@
       transition: color .15s, border-color .15s, background .15s;
     }
     .m-pin-btn svg { width: 13px; height: 13px; }
-    .m-pin-btn:hover  { color: #f0c040; border-color: #f0c040; }
-    .m-pin-btn.pinned { color: #f0c040; border-color: rgba(240,192,64,.4); background: rgba(240,192,64,.08); }
+    .m-pin-btn:hover  { color: var(--p-name); border-color: var(--p-name); }
+    .m-pin-btn.pinned { color: var(--p-name); border-color: rgba(240,192,64,.4); background: rgba(240,192,64,.08); }
 
     .m-item.pinned { border-left: 2px solid rgba(240,192,64,.5); }
     .m-pinned-divider {
@@ -158,8 +196,8 @@
     /* footer */
     .m-footer {
       padding: 8px 12px;
-      background: #16213e;
-      border-top: 1px solid #0f3460;
+      background: var(--p-bg2);
+      border-top: 1px solid var(--p-border);
       display: flex;
       gap: 8px;
       flex-shrink: 0;
@@ -175,8 +213,8 @@
     }
     .m-btn.export { border-color: #4caf50; color: #4caf50; }
     .m-btn.export:hover { background: #4caf50; color: #fff; }
-    .m-btn.clr    { border-color: #e94560; color: #e94560; }
-    .m-btn.clr:hover  { background: #e94560; color: #fff; }
+    .m-btn.clr    { border-color: var(--p-accent); color: var(--p-accent); }
+    .m-btn.clr:hover  { background: var(--p-accent); color: #fff; }
   `;
   shadow.appendChild(style);
 
