@@ -158,6 +158,7 @@
     <div class="m-header">
       <span class="m-title">M3U8 Detector</span>
       <span class="m-count" id="m-count">0 streams</span>
+      <button class="m-icon" id="m-opts" title="Options / Download Notebook">⚙</button>
       <button class="m-icon" id="m-pin" title="Pin panel">📌</button>
       <button class="m-icon" id="m-close" title="Close">✕</button>
     </div>
@@ -288,6 +289,7 @@
   // ── Event listeners ───────────────────────────────────────────────────────
   tab.addEventListener('click', () => { isOpen ? close() : open(); });
 
+  $('m-opts').addEventListener('click', () => { chrome.runtime.openOptionsPage(); });
   $('m-close').addEventListener('click', () => { setPin(false); close(); });
   $('m-pin').addEventListener('click', () => { setPin(!isPinned); if (isPinned) open(); });
 
