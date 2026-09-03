@@ -4,6 +4,16 @@ All notable changes to this project are documented here.
 
 ---
 
+## [1.11] — 2026-09-03
+
+### Fixed
+- **`background.js`** — cookie collection now also queries `streamUrl`'s own origin, not just `pageUrl`. A domain-scoped session/clearance cookie set on the CDN host (e.g. Cloudflare-protected segment hosts) was previously dropped entirely because `chrome.cookies.getAll` was only scoped to the page's domain.
+- **`hls-colab.ipynb`** — `pageUrl` and `cookies` from the extension's exported JSON were parsed on upload but never carried into the download queue (`MOVIES`), so every segment request went out with no `Cookie` header and a fabricated `Referer` (the CDN's own host instead of the real page). Both are now threaded through `get_segments` / `download_direct` / `download_all` / `retry_failed`.
+- **`hls-colab.ipynb`** `combine()` — crashed with `list index out of range` when 0 segments downloaded successfully; now raises a clear `RuntimeError` instead.
+- **`hls-colab.ipynb`** — `requests.Session` now mounts an `HTTPAdapter(pool_maxsize=64)`; the previous default (`10`) was smaller than the worker-count slider (up to 30), causing `Connection pool is full, discarding connection` warnings under load.
+
+---
+
 ## [1.10] — 2026-09-02
 
 ### Changed
