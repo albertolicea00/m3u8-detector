@@ -84,10 +84,30 @@ function addStream(tabId, streamUrl, pageUrl, pageTitle, streamType = 'hls') {
   detected[tabId].push(entry);
 
   const cookieP = pageUrl
-    ? new Promise(r => chrome.cookies.getAll({ url: pageUrl }, c => {
-        entry.cookies = (c || []).map(x => `${x.name}=${x.value}`).join('; ');
-        r();
-      }))
+    ? new Promise(r => {
+        // streamUrl's own host can carry a Cloudflare-style clearance/session
+        // cookie that's domain-scoped there, not on the page's domain — pulling
+        // only pageUrl's cookies silently drops it and the CDN 403s every segment.
+        let streamOrigin = null;
+        try { streamOrigin = new URL(streamUrl).origin; } catch {}
+        const urls = streamOrigin && streamOrigin !== new URL(pageUrl).origin
+          ? [pageUrl, streamOrigin]
+          : [pageUrl];
+        Promise.all(urls.map(u => new Promise(res =>
+          chrome.cookies.getAll({ url: u }, c => res(c || []))
+        ))).then(lists => {
+          const seen = new Set();
+          const merged = [];
+          for (const c of lists.flat()) {
+            const key = `${c.domain}|${c.name}`;
+            if (seen.has(key)) continue;
+            seen.add(key);
+            merged.push(c);
+          }
+          entry.cookies = merged.map(x => `${x.name}=${x.value}`).join('; ');
+          r();
+        });
+      })
     : Promise.resolve();
 
   if (streamType === 'hls') {
