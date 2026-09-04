@@ -4,6 +4,18 @@ All notable changes to this project are documented here.
 
 ---
 
+## [1.12] — 2026-09-04
+
+### Fixed
+- **`manifest.json`** — Firefox AMO validation: added `background.scripts` as Firefox-compatible fallback alongside `service_worker`.
+- **`manifest.json`** — added `browser_specific_settings.gecko.data_collection_permissions` (`required: ["none"]`) required by AMO for all new MV3 extensions.
+- **`manifest.json`** — bumped `strict_min_version` to `140.0` (minimum version supporting `data_collection_permissions`).
+
+### Changed
+- **`README.md`** — new `## 📥 Installation` section with extension store links (Firefox AMO live; Chrome/Edge/Opera pending review).
+
+---
+
 ## [1.11] — 2026-09-03
 
 ### Fixed
