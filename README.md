@@ -16,8 +16,9 @@ Installing from the official stores is the easiest way to get **M3U8 Detector** 
 - 🟢 **Chrome** (Brave, Vivaldi): [Download from Chrome Web Store](https://chromewebstore.google.com/detail/m3u8-detector)
 - 🔵 **Edge**: [Download from Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/m3u8-detector)
 - 🔴 **Opera**: [Download from Opera Add-ons](https://addons.opera.com/extensions/details/m3u8-detector)
-- 🦊 **Firefox**: [Download from Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/m3u8-detector/)
 -->
+
+- 🦊 **Firefox**: [Download from Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/m3u8-detector/)
 
 ### 🛠️ Manual Installation (Developer Mode)
 
