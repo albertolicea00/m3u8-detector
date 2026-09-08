@@ -1,6 +1,8 @@
-# M3U8 Detector
+# 🔴 M3U8 Detector
 
 Chrome/Firefox extension (Manifest V3) that detects HLS streams on any page, resolves segment URLs from the service worker (bypassing IP-locked playlist tokens), detects direct MP4/WebM/MKV video requests, and exports everything needed to download streams with the companion Colab notebook or local bash script.
+
+![screenshot](assets/screenshot-1-detection.png)
 
 ---
 
