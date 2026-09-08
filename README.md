@@ -10,7 +10,7 @@ Chrome/Firefox extension (Manifest V3) that detects HLS streams on any page, res
 
 Installing from the official stores is the easiest way to get **M3U8 Detector** and ensure it stays updated automatically.
 
-> ⚠️ **Firefox, Chrome, Edge, Opera versions on the way — review in progress**
+> ⚠️ **Chrome, Edge, Opera versions on the way — review in progress**
 
 <!--
 - 🟢 **Chrome** (Brave, Vivaldi): [Download from Chrome Web Store](https://chromewebstore.google.com/detail/m3u8-detector)
