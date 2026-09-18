@@ -4,6 +4,17 @@ All notable changes to this project are documented here.
 
 ---
 
+## [1.13] — 2026-09-18
+
+### Fixed
+- **`hls-colab.ipynb`** — some captured exports log the same progressive-file URL once per HTTP range-request during playback instead of real HLS chunks. Feeding that list straight into the parallel downloader made every worker pull the full file body into memory at once (`WORKERS × file size`), crashing the Colab session. Segment lists are now deduped before download; a single surviving URL routes to a direct download instead of the chunked pipeline.
+- **`hls-colab.ipynb`** `download_all` / `retry_failed` — segment bodies are now streamed straight to disk instead of buffered fully in memory (`r.content`), hardening the same code path for legitimately large real HLS segments.
+
+### Added
+- **`src/scripts/dl-tubi.sh`** — local (non-Colab) downloader for the duplicate-URL case: dedupe + single resumable `curl` download.
+
+---
+
 ## [1.12] — 2026-09-04
 
 ### Fixed
