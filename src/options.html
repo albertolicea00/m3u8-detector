@@ -231,6 +231,33 @@
     .badge.accent { background: rgba(233,69,96,.12); border-color: rgba(233,69,96,.3); color: var(--accent); }
     .badge.yellow { background: rgba(210,153,34,.1);  border-color: rgba(210,153,34,.3); color: var(--yellow); }
 
+    /* ── Scripts list ── */
+    #script-list { display: flex; flex-direction: column; gap: 8px; }
+    .script-item {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .script-name { font-size: 13px; font-weight: 600; color: var(--text); }
+    .script-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .script-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--blue);
+      text-decoration: none;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .script-link:hover { text-decoration: underline; }
+    .script-link svg { width: 13px; height: 13px; }
+
     /* ── Pinned streams list ── */
     #pinned-list { display: flex; flex-direction: column; gap: 8px; }
     .pin-item {
@@ -317,7 +344,7 @@
     <div class="nav-spacer"></div>
     <div class="nav-tabs">
       <a class="nav-tab" href="#streams">Streams</a>
-      <a class="nav-tab" href="#notebook">Notebook</a>
+      <a class="nav-tab" href="#scripts">Scripts</a>
       <a class="nav-tab" href="#help">Help</a>
     </div>
     <a class="nav-github" href="https://github.com/albertolicea00/m3u8-detector" target="_blank" id="gh-link">
@@ -345,80 +372,57 @@
     </div>
   </section>
 
-  <!-- ── Colab Notebook ── -->
-  <section id="notebook">
-    <div class="section-label">Colab Notebook</div>
+  <!-- ── Helpful Scripts ── -->
+  <section id="scripts">
+    <div class="section-label">Helpful Scripts</div>
     <div class="card">
       <div class="card-title">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-        HLS Downloader
-        <span class="badge">hls-colab.ipynb</span>
-      </div>
-      <div class="card-desc">
-        Downloads HLS streams and saves them as MP4 to Google Drive. Handles TikTok CDN segments (PNG-wrapped MPEG-TS), parallel downloading with retry, and ffmpeg muxing.
-      </div>
-      <ol class="steps">
-        <li>Browse to the movie page — extension auto-detects and resolves all segment URLs.</li>
-        <li>Open the panel → wait for <code>N segments ready</code> → click <code>Save JSON</code>.</li>
-        <li>Download the notebook below and open it in Google Colab.</li>
-        <li>Run Cell 1 (setup) → Cell 2 → <code>Load JSON</code> → select the file from step 2.</li>
-        <li>Click <code>Apply</code> → run Cells 3 and 4. MP4 files saved to <code>MyDrive/Movies/</code>.</li>
-      </ol>
-      <div class="btn-group">
-        <button class="btn btn-green" id="btn-nb">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Download hls-colab.ipynb
-        </button>
-      </div>
-      <div id="nb-status"></div>
-    </div>
-
-    <div class="card" style="margin-top:12px">
-      <div class="card-title">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-        yt-dlp → Drive
-        <span class="badge">ytdlp-2drive.ipynb</span>
-      </div>
-      <div class="card-desc">
-        Downloads any yt-dlp-supported URL (YouTube, etc.) straight to Google Drive. Uses EJS/PO-token solver via Node 22+, with a cookies.txt upload UI for gated content.
-      </div>
-      <ol class="steps">
-        <li>Download the notebook below and open it in Google Colab.</li>
-        <li>Run Cell 1 (mount Drive) → Cell 2 (installs yt-dlp + Node 22+).</li>
-        <li>Upload your <code>cookies.txt</code>, enter the video URL, click <code>Start Processing</code>.</li>
-        <li>File saved to <code>MyDrive/ColabMedia/</code>.</li>
-      </ol>
-      <div class="btn-group">
-        <button class="btn btn-green" id="btn-nb-ytdlp">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Download ytdlp-2drive.ipynb
-        </button>
-      </div>
-      <div id="nb-ytdlp-status"></div>
-    </div>
-
-    <div class="card" style="margin-top:12px">
-      <div class="card-title">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9l6 3-6 3V9z"/></svg>
-        Local Downloader
-        <span class="badge">hls-local.sh</span>
+        Scripts &amp; notebooks
       </div>
-      <div class="card-desc">
-        Same pipeline as the Colab notebook but runs on your Mac/Linux machine and saves directly to <code>~/Downloads</code>. Requires <code>curl</code>, <code>ffmpeg</code>, <code>python3</code>.
+      <div class="card-desc">Companion scripts for downloading and saving streams. View source on GitHub.</div>
+      <div id="script-list">
+        <div class="script-item">
+          <div>
+            <div class="script-name">hls-colab.ipynb</div>
+            <div class="script-desc">Colab notebook — resolved HLS segments → MP4 on Google Drive.</div>
+          </div>
+          <a class="script-link" href="https://github.com/albertolicea00/m3u8-detector/blob/main/src/notebooks/hls-colab.ipynb" target="_blank">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            View on GitHub
+          </a>
+        </div>
+        <div class="script-item">
+          <div>
+            <div class="script-name">ytdlp-2drive.ipynb</div>
+            <div class="script-desc">Colab notebook — any yt-dlp URL → Google Drive, EJS/PO-token solver.</div>
+          </div>
+          <a class="script-link" href="https://github.com/albertolicea00/m3u8-detector/blob/main/src/notebooks/ytdlp-2drive.ipynb" target="_blank">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            View on GitHub
+          </a>
+        </div>
+        <div class="script-item">
+          <div>
+            <div class="script-name">hls-local.sh</div>
+            <div class="script-desc">Local (Mac/Linux) HLS downloader — same pipeline as the Colab notebook.</div>
+          </div>
+          <a class="script-link" href="https://github.com/albertolicea00/m3u8-detector/blob/main/src/scripts/hls-local.sh" target="_blank">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            View on GitHub
+          </a>
+        </div>
+        <div class="script-item">
+          <div>
+            <div class="script-name">dl-tubi.sh</div>
+            <div class="script-desc">Local downloader for the duplicate-URL / progressive-file export case.</div>
+          </div>
+          <a class="script-link" href="https://github.com/albertolicea00/m3u8-detector/blob/main/src/scripts/dl-tubi.sh" target="_blank">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            View on GitHub
+          </a>
+        </div>
       </div>
-      <ol class="steps">
-        <li>Download the script below and make it executable: <code>chmod +x hls-local.sh</code></li>
-        <li>Export the JSON from the panel (<code>Save JSON</code>) on the movie page.</li>
-        <li>Run <code>./hls-local.sh path/to/m3u8_*.json</code> — script will prompt for output dir and options.</li>
-        <li>MP4 files saved to <code>~/Downloads</code> (or the directory you choose).</li>
-      </ol>
-      <div class="btn-group">
-        <button class="btn btn-green" id="btn-sh">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Download hls-local.sh
-        </button>
-      </div>
-      <div id="sh-status"></div>
     </div>
   </section>
 

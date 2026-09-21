@@ -51,7 +51,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["src/interceptor.js", "src/notebooks/hls-colab.ipynb", "src/notebooks/ytdlp-2drive.ipynb", "README.md", "src/scripts/hls-local.sh"],
+      "resources": ["src/interceptor.js", "README.md"],
       "matches": ["<all_urls>"]
     }
   ]
