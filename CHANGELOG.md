@@ -4,6 +4,14 @@ All notable changes to this project are documented here.
 
 ---
 
+## [1.16] — 2026-09-21
+
+### Changed
+- **Options page** — dropped the dedicated "Helpful Scripts" nav tab/section; the script list now lives in `README.md` and renders through the existing Help/README tab, avoiding duplication.
+- **README** — added a "Helpful Scripts" section with links to each companion script/notebook and a usage disclaimer.
+
+---
+
 ## [1.15] — 2026-09-21
 
 ### Changed
