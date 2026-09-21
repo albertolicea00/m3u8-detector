@@ -231,33 +231,6 @@
     .badge.accent { background: rgba(233,69,96,.12); border-color: rgba(233,69,96,.3); color: var(--accent); }
     .badge.yellow { background: rgba(210,153,34,.1);  border-color: rgba(210,153,34,.3); color: var(--yellow); }
 
-    /* ── Scripts list ── */
-    #script-list { display: flex; flex-direction: column; gap: 8px; }
-    .script-item {
-      background: var(--bg3);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-    .script-name { font-size: 13px; font-weight: 600; color: var(--text); }
-    .script-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
-    .script-link {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      color: var(--blue);
-      text-decoration: none;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-    .script-link:hover { text-decoration: underline; }
-    .script-link svg { width: 13px; height: 13px; }
-
     /* ── Pinned streams list ── */
     #pinned-list { display: flex; flex-direction: column; gap: 8px; }
     .pin-item {
@@ -344,7 +317,6 @@
     <div class="nav-spacer"></div>
     <div class="nav-tabs">
       <a class="nav-tab" href="#streams">Streams</a>
-      <a class="nav-tab" href="#scripts">Scripts</a>
       <a class="nav-tab" href="#help">Help</a>
     </div>
     <a class="nav-github" href="https://github.com/albertolicea00/m3u8-detector" target="_blank" id="gh-link">
@@ -368,60 +340,6 @@
       <div class="card-desc">Streams you pinned in the panel. Survive Clear and page navigation. Click a name to rename it.</div>
       <div id="pinned-list">
         <div id="pinned-empty">No pinned streams yet — open the panel on a movie page and click the pin icon.</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── Helpful Scripts ── -->
-  <section id="scripts">
-    <div class="section-label">Helpful Scripts</div>
-    <div class="card">
-      <div class="card-title">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9l6 3-6 3V9z"/></svg>
-        Scripts &amp; notebooks
-      </div>
-      <div class="card-desc">Companion scripts for downloading and saving streams. View source on GitHub.</div>
-      <div id="script-list">
-        <div class="script-item">
-          <div>
-            <div class="script-name">hls-colab.ipynb</div>
-            <div class="script-desc">Colab notebook — resolved HLS segments → MP4 on Google Drive.</div>
-          </div>
-          <a class="script-link" href="https://github.com/albertolicea00/m3u8-detector/blob/main/src/notebooks/hls-colab.ipynb" target="_blank">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-            View on GitHub
-          </a>
-        </div>
-        <div class="script-item">
-          <div>
-            <div class="script-name">ytdlp-2drive.ipynb</div>
-            <div class="script-desc">Colab notebook — any yt-dlp URL → Google Drive, EJS/PO-token solver.</div>
-          </div>
-          <a class="script-link" href="https://github.com/albertolicea00/m3u8-detector/blob/main/src/notebooks/ytdlp-2drive.ipynb" target="_blank">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-            View on GitHub
-          </a>
-        </div>
-        <div class="script-item">
-          <div>
-            <div class="script-name">hls-local.sh</div>
-            <div class="script-desc">Local (Mac/Linux) HLS downloader — same pipeline as the Colab notebook.</div>
-          </div>
-          <a class="script-link" href="https://github.com/albertolicea00/m3u8-detector/blob/main/src/scripts/hls-local.sh" target="_blank">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-            View on GitHub
-          </a>
-        </div>
-        <div class="script-item">
-          <div>
-            <div class="script-name">dl-tubi.sh</div>
-            <div class="script-desc">Local downloader for the duplicate-URL / progressive-file export case.</div>
-          </div>
-          <a class="script-link" href="https://github.com/albertolicea00/m3u8-detector/blob/main/src/scripts/dl-tubi.sh" target="_blank">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-            View on GitHub
-          </a>
-        </div>
       </div>
     </div>
   </section>

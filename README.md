@@ -126,6 +126,19 @@ Requires: `curl`, `ffmpeg`, `python3`
 
 ---
 
+## Helpful Scripts
+
+Most downloaders and AI agents are ready to go with just the exported JSON — drop the `m3u8_*.json` file from **Save JSON** into any of these and it resolves straight to a saved video:
+
+- [**hls-colab.ipynb**](src/notebooks/hls-colab.ipynb) — Colab notebook, HLS + direct MP4 → Google Drive
+- [**ytdlp-2drive.ipynb**](src/notebooks/ytdlp-2drive.ipynb) — Colab notebook, any yt-dlp-supported URL → Google Drive (EJS/PO-token solver)
+- [**hls-local.sh**](src/scripts/hls-local.sh) — local (Mac/Linux) HLS downloader → `~/Downloads`
+- [**dl-tubi.sh**](src/scripts/dl-tubi.sh) — local downloader for the duplicate-URL / progressive-file export case
+
+> ⚠️ **Disclaimer**: these scripts are provided as-is for personal, educational use. You are solely responsible for how you use them and for complying with the terms of service and copyright laws applicable to any site or content you download from. The author assumes no liability for misuse.
+
+---
+
 ## Docs
 
 - [ARCHITECTURE.md](ARCHITECTURE.md) — system design, component diagram, build & release guide
