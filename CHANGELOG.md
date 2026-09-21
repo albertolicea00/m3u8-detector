@@ -4,6 +4,13 @@ All notable changes to this project are documented here.
 
 ---
 
+## [1.15] — 2026-09-21
+
+### Changed
+- **Options page** — "Colab Notebook" section renamed to "Helpful Scripts" (nav tab too); download buttons replaced with a list linking to each script's GitHub source. Fixed stale version placeholder.
+
+---
+
 ## [1.14] — 2026-09-21
 
 ### Added
