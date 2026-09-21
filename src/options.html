@@ -375,6 +375,30 @@
 
     <div class="card" style="margin-top:12px">
       <div class="card-title">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        yt-dlp → Drive
+        <span class="badge">ytdlp-2drive.ipynb</span>
+      </div>
+      <div class="card-desc">
+        Downloads any yt-dlp-supported URL (YouTube, etc.) straight to Google Drive. Uses EJS/PO-token solver via Node 22+, with a cookies.txt upload UI for gated content.
+      </div>
+      <ol class="steps">
+        <li>Download the notebook below and open it in Google Colab.</li>
+        <li>Run Cell 1 (mount Drive) → Cell 2 (installs yt-dlp + Node 22+).</li>
+        <li>Upload your <code>cookies.txt</code>, enter the video URL, click <code>Start Processing</code>.</li>
+        <li>File saved to <code>MyDrive/ColabMedia/</code>.</li>
+      </ol>
+      <div class="btn-group">
+        <button class="btn btn-green" id="btn-nb-ytdlp">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download ytdlp-2drive.ipynb
+        </button>
+      </div>
+      <div id="nb-ytdlp-status"></div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div class="card-title">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9l6 3-6 3V9z"/></svg>
         Local Downloader
         <span class="badge">hls-local.sh</span>

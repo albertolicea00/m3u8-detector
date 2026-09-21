@@ -138,6 +138,25 @@ document.getElementById('btn-nb').addEventListener('click', async () => {
   }
 });
 
+// ── yt-dlp → Drive notebook download ─────────────────────────────────────────
+document.getElementById('btn-nb-ytdlp').addEventListener('click', async () => {
+  const status = document.getElementById('nb-ytdlp-status');
+  try {
+    const res  = await fetch(chrome.runtime.getURL('src/notebooks/ytdlp-2drive.ipynb'));
+    const blob = await res.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'ytdlp-2drive.ipynb';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+    status.textContent = 'Saved — open in Google Colab to use';
+    setTimeout(() => { status.textContent = ''; }, 4000);
+  } catch (e) {
+    status.style.color = 'var(--accent)';
+    status.textContent = 'Error: ' + e.message;
+  }
+});
+
 // ── Local script download ──────────────────────────────────────────────────────
 document.getElementById('btn-sh').addEventListener('click', async () => {
   const status = document.getElementById('sh-status');

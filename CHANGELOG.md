@@ -4,6 +4,13 @@ All notable changes to this project are documented here.
 
 ---
 
+## [1.14] — 2026-09-21
+
+### Added
+- **Options page** — new "yt-dlp → Drive" card in the Notebook section, downloading `src/notebooks/ytdlp-2drive.ipynb` (yt-dlp EJS/PO-token downloader that saves straight to Google Drive).
+
+---
+
 ## [1.13] — 2026-09-18
 
 ### Fixed
