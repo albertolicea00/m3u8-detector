@@ -88,8 +88,8 @@ m3u8-detector/
 │   ├── content.js         # Content script bridge between MAIN & ISOLATED worlds
 │   ├── interceptor.js     # Page-level XHR/fetch hook (injected into MAIN world)
 │   ├── panel.js           # Shadow DOM sidebar panel UI (theme-aware)
-│   ├── options.html       # Options page: pinned streams, notebook/script download, help
-│   ├── options.js         # Options logic: storage reader, notebook/script downloader
+│   ├── options.html       # Options page: pinned streams, help/README viewer
+│   ├── options.js         # Options logic: storage reader, README renderer
 │   ├── icons/             # Extension toolbar & store icons (16/32/48/128/512 px PNGs)
 │   ├── notebooks/
 │   │   └── hls-colab.ipynb  # Google Colab notebook: HLS + direct MP4 → Google Drive
