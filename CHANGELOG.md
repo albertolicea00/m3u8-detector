@@ -4,6 +4,13 @@ All notable changes to this project are documented here.
 
 ---
 
+## [1.17] — 2026-10-06
+
+### Changed
+- **README** — "Helpful Scripts" links now point to [`agentscripts`](https://github.com/albertolicea00/agentscripts) repo instead of local paths; scripts have moved there.
+
+---
+
 ## [1.16] — 2026-09-21
 
 ### Changed
