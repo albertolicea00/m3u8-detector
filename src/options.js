@@ -32,7 +32,12 @@ function md2html(md) {
     // inline code
     .replace(/`([^`]+)`/g, '<code>$1</code>')
     // links
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, href) => {
+      const url = /^(https?:|#|mailto:)/.test(href)
+        ? href
+        : `https://github.com/albertolicea00/m3u8-detector/blob/main/${href.replace(/^\.\//, '')}`;
+      return `<a href="${url}" target="_blank" rel="noopener noreferrer">${label}</a>`;
+    })
     // paragraphs: blank lines
     .replace(/\n{2,}/g, '</p><p>');
 
