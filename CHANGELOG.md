@@ -4,6 +4,17 @@ All notable changes to this project are documented here.
 
 ---
 
+## [1.18] — 2026-11-15
+
+### Fixed
+- **Options page** (`options.js`) — relative links in `README.md` (`ARCHITECTURE.md`, `CONTRIBUTING.md`, `CHANGELOG.md`) now resolve to GitHub instead of `chrome-extension://.../src/...` 404s.
+- **README** — updated "Helpful Scripts" links (`hls-colab.ipynb`, `ytdlp-2drive.ipynb`, `hls-local.sh`, `dl-tubi.sh`) to their current `notebooks/downloads/` and `scripts/downloads/` paths in [`agentscripts`](https://github.com/albertolicea00/agentscripts).
+
+### Changed
+- **README** — updated Chrome Web Store and Firefox Add-ons download links, and noted Edge/Opera versions are in review.
+
+---
+
 ## [1.17] — 2026-10-06
 
 ### Changed
